@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Linha do Tempo Musical</title>
+<style>
+:root{--bg:#0b0c10;--card:#151820;--card2:#1d212b;--text:#f6f7fb;--muted:#a7adba;--accent:#1ed760;--border:#2b303c;--danger:#ff6577}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#18251e 0,#0b0c10 42%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+.wrap{max-width:900px;margin:auto;padding:24px 16px 48px}.hero{padding:28px 0 18px}.eyebrow{color:var(--accent);font-size:12px;font-weight:900;letter-spacing:.18em}.hero h1{font-size:clamp(32px,7vw,58px);line-height:.95;margin:8px 0 12px}.hero p{color:var(--muted);max-width:650px}
+.panel{background:rgba(21,24,32,.92);border:1px solid var(--border);border-radius:22px;padding:18px;margin-top:14px;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+input{width:100%;background:#0f1117;border:1px solid var(--border);border-radius:14px;padding:14px;color:white;font-size:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:14px;min-height:48px;padding:0 18px;font-weight:900;font-size:15px;cursor:pointer}.primary{background:var(--accent);color:#07130b}.secondary{background:var(--card2);color:white;border:1px solid var(--border)}.danger{color:#ff9aa6}.btn:disabled{opacity:.35;cursor:not-allowed}
+.hidden{display:none!important}.top{display:flex;justify-content:space-between;align-items:end;gap:12px}.muted{color:var(--muted);font-size:13px}.big{font-size:25px;font-weight:900}
+.song{padding:28px;text-align:center;background:linear-gradient(145deg,#171b23,#101217)}.disc{width:86px;height:86px;border-radius:50%;background:repeating-radial-gradient(circle,#1b1d24 0 7px,#08090b 8px 11px);margin:0 auto 18px;display:grid;place-items:center}.disc:after{content:'♪';display:grid;place-items:center;width:30px;height:30px;background:var(--accent);color:#08110b;border-radius:50%;font-weight:900}.song h2{margin:4px 0}.song .artist{color:var(--muted);margin-bottom:18px}.secret{font-size:52px;margin:8px 0}.djtag{display:inline-block;padding:6px 10px;border-radius:999px;background:#252b36;color:#d8dce5;font-size:12px;font-weight:900;letter-spacing:.08em}.handoff{border:1px dashed #566171;background:#11141a}.spotify{background:var(--accent);color:#06120a;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:13px 20px;font-weight:900}
+.timeline{display:flex;align-items:center;gap:8px;overflow-x:auto;padding:12px 2px 6px}.year{min-width:76px;padding:18px 10px;text-align:center;border:1px solid var(--border);border-radius:14px;background:var(--card2);font-weight:900}.slot{min-width:62px;min-height:54px;border:1px dashed #657080;border-radius:13px;background:transparent;color:var(--muted);font-weight:900;cursor:pointer}.slot.selected{border:2px solid var(--accent);color:var(--accent);background:#102519}
+.result{text-align:center}.result .yr{font-size:48px;font-weight:1000}.ok{color:var(--accent)}.no{color:var(--danger)}
+.score{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}.player{padding:12px 14px;border:1px solid var(--border);border-radius:14px;display:flex;justify-content:space-between;background:var(--card2)}.player.active{outline:2px solid var(--accent)}
+@media(max-width:520px){.wrap{padding:14px 12px 36px}.panel{border-radius:18px}.song{padding:22px 14px}.hero{padding-top:18px}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.78);display:grid;place-items:center;padding:18px;z-index:30}.modalbox{width:min(620px,100%);max-height:86vh;overflow:auto;background:#151820;border:1px solid var(--border);border-radius:22px;padding:22px}.rules{line-height:1.6}.rules li{margin:8px 0}.catgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}.cat{padding:13px;border:1px solid var(--border);border-radius:14px;background:#0f1117;color:white;text-align:left}.cat.selected{outline:2px solid var(--accent)}.champ{padding:10px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px}@media(max-width:520px){.catgrid{grid-template-columns:1fr}}
+/* HITSTER NIGHT */
+:root{--bg:#080a09;--panel:#111512;--text:#f5f7f5;--muted:#9ba79f;--green:#1ed760;--line:#2b352e}
+*{box-sizing:border-box}
+body{min-height:100vh;margin:0;color:var(--text);background:radial-gradient(circle at 50% -10%,rgba(30,215,96,.14),transparent 32%),linear-gradient(180deg,#0b0e0c,#070908);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.01em}
+.wrap{max-width:980px;margin:auto;padding:20px 16px 42px}
+.card{background:linear-gradient(180deg,rgba(20,26,22,.97),rgba(12,16,13,.97));border:1px solid rgba(255,255,255,.075);border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.34)}
+h1,h2,h3{letter-spacing:-.04em}.muted{color:var(--muted)}
+button,.btn,a.btn{border-radius:14px;min-height:48px;font-weight:800;transition:.16s ease}
+button:hover,.btn:hover{transform:translateY(-1px)}
+.primary,.spotify{background:var(--green)!important;color:#071009!important;border-color:transparent!important;box-shadow:0 8px 28px rgba(30,215,96,.16)}
+input,select,textarea{background:#0b0f0c!important;border:1px solid #2a322c!important;color:var(--text)!important;border-radius:14px!important;min-height:48px;padding:0 14px!important}
+input:focus,select:focus,textarea:focus{border-color:rgba(30,215,96,.75)!important;outline:none;box-shadow:0 0 0 3px rgba(30,215,96,.08)}
+#catgrid{gap:10px!important}
+#catgrid button{background:#101511;border:1px solid #273029;color:#e9eeea;padding:14px 12px;border-radius:16px;text-align:left}
+#catgrid button:hover{border-color:#3d4b41;background:#141b16}
+#score{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px!important;margin:14px 0 20px}
+.player{background:#0c100d!important;border:1px solid #252d27!important;border-radius:15px!important;padding:11px 13px!important}
+.player.active{border-color:rgba(30,215,96,.65)!important;background:rgba(30,215,96,.08)!important;box-shadow:inset 3px 0 0 var(--green)}
+.player b,#turn{color:var(--green)!important;font-weight:900}
+#djHidden,#djReveal,#playerReady{border-radius:20px!important;border:1px solid rgba(255,255,255,.07)!important;background:linear-gradient(180deg,#121713,#0c100d)!important;padding:22px!important}
+#title{font-size:clamp(24px,5vw,38px)!important;line-height:1.04;font-weight:950;letter-spacing:-.05em}
+#artist{font-size:16px!important;color:#aeb8b1!important}
+
+/* timeline musical */
+#timeline{position:relative;display:flex!important;align-items:center!important;gap:0!important;overflow-x:auto;overflow-y:hidden;padding:34px 8px 34px!important;margin:8px -4px 4px;scrollbar-width:thin;scrollbar-color:#39443d transparent;scroll-snap-type:x proximity}
+#timeline:before{content:"";position:absolute;left:24px;right:24px;top:50%;height:3px;background:linear-gradient(90deg,rgba(30,215,96,.12),rgba(30,215,96,.8),rgba(30,215,96,.12));border-radius:99px;box-shadow:0 0 18px rgba(30,215,96,.1)}
+#timeline .year{position:relative;z-index:2;flex:0 0 78px!important;width:78px!important;height:78px!important;border-radius:50%!important;display:grid!important;place-items:center;background:#111713!important;border:2px solid #3b473e!important;color:#fff!important;font-size:18px!important;font-weight:950!important;padding:0!important;box-shadow:0 10px 24px rgba(0,0,0,.35),inset 0 0 0 5px #0c100d;scroll-snap-align:center}
+#timeline .year:after{content:"";position:absolute;inset:8px;border:1px solid rgba(255,255,255,.07);border-radius:50%}
+#timeline .year small{position:absolute!important;top:82px!important;left:50%!important;transform:translateX(-50%);font-size:9px!important;letter-spacing:.13em!important;color:var(--green)!important;font-weight:900!important;white-space:nowrap;margin:0!important}
+#timeline .slot{position:relative;z-index:3;flex:0 0 58px!important;width:58px!important;min-width:58px!important;height:44px!important;min-height:44px!important;border-radius:999px!important;margin:0 5px!important;padding:0!important;background:#090c0a!important;border:1px dashed #4a564d!important;color:#89958d!important;font-size:9px!important;font-weight:900!important;letter-spacing:.06em!important;box-shadow:0 5px 14px rgba(0,0,0,.18)}
+#timeline .slot:hover{color:var(--green)!important;border-color:var(--green)!important;background:rgba(30,215,96,.08)!important;transform:scale(1.05)}
+#timeline .slot.selected{background:var(--green)!important;border:1px solid var(--green)!important;color:#071009!important;box-shadow:0 0 0 5px rgba(30,215,96,.1),0 0 25px rgba(30,215,96,.2)}
+#hint{text-align:center!important;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.055);border-radius:12px;padding:10px 12px!important;color:#aab4ad!important}
+#result{background:#0c110d!important;border:1px solid #28322b!important;border-radius:18px!important;padding:18px!important;text-align:center}
+#result .yr{font-size:42px!important;font-weight:950;color:var(--green);letter-spacing:-.05em}.ok{color:var(--green)!important}.no{color:#ff7d7d!important}
+#champion{background:radial-gradient(circle at 50% 0,rgba(30,215,96,.2),transparent 34%),linear-gradient(180deg,#131a15,#0b0f0c)!important;border:1px solid rgba(30,215,96,.25)!important;border-radius:24px!important}
+@media(max-width:600px){.wrap{padding:12px 12px 30px}.card{border-radius:18px}#timeline{padding-top:28px!important;padding-bottom:34px!important}#timeline .year{flex-basis:68px!important;width:68px!important;height:68px!important;font-size:16px!important}#timeline .year small{top:72px!important}#timeline .slot{flex-basis:48px!important;width:48px!important;min-width:48px!important;margin:0 3px!important}}
+
+
+/* ===== NIGHT 2.0 ===== */
+.eyebrow{font-size:10px;font-weight:950;letter-spacing:.16em;color:#7f8d83}
+.gamehud{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px!important;margin-bottom:14px}
+.hudwho .big{font-size:clamp(28px,6vw,44px);line-height:1;font-weight:950;letter-spacing:-.055em;margin:4px 0 10px}
+.hudmeta{display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+.genreBadge,.roundBadge{border:1px solid #2d3830;background:#0b100c;border-radius:999px;padding:7px 10px;font-size:10px;font-weight:900;letter-spacing:.055em;white-space:nowrap}
+.genreBadge{color:#dfffe9;border-color:rgba(30,215,96,.25);background:rgba(30,215,96,.07)}
+.roundBadge{color:#8f9b93}.roundBadge b{color:#fff;font-size:12px}
+.progressDots{display:flex;align-items:center;gap:8px}.progressDots>span{font-size:12px;color:var(--green);font-weight:900}
+.miniProgress{display:flex;gap:3px;align-items:center}.miniProgress i{display:block;width:12px;height:4px;border-radius:99px;background:#2b332e}.miniProgress i.on{background:var(--green);box-shadow:0 0 8px rgba(30,215,96,.18)}
+.bigProgress i{width:15px;height:5px}
+.mysteryVinyl{width:112px;height:112px;border-radius:50%;margin:2px auto 18px;display:grid;place-items:center;background:repeating-radial-gradient(circle,#151a16 0 5px,#0a0d0b 6px 8px);border:1px solid #303a33;box-shadow:0 18px 38px rgba(0,0,0,.4),0 0 0 7px rgba(255,255,255,.015);animation:vinylSpin 7s linear infinite}
+.mysteryVinyl:before{content:"";position:absolute;width:45px;height:45px;border-radius:50%;background:var(--green);box-shadow:inset 0 0 0 13px #121713}
+.vinylCore{position:relative;z-index:2;color:#061009;font-weight:950;font-size:16px}
+@keyframes vinylSpin{to{transform:rotate(360deg)}}
+.mysteryEyebrow{text-align:center;color:var(--green);margin-bottom:6px}
+#playerReady{text-align:center;padding:28px 20px!important}#playerReady h2{font-size:clamp(24px,5vw,34px);margin:5px 0 8px}
+.timelinePanel{padding:20px!important;overflow:hidden}.timelineHead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}.timelineTip{font-size:10px;color:#78857c;letter-spacing:.1em;font-weight:850}.timelineTip b{color:var(--green);font-size:16px}
+#timeline .slot{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:0}
+#timeline .slot span{font-size:23px;line-height:16px;font-weight:500}
+#timeline .slot small{position:absolute;top:49px;font-size:7px;letter-spacing:.11em;color:#77827a;font-weight:900}
+#timeline .slot.selected small{color:var(--green)}
+#timeline .year{background:repeating-radial-gradient(circle,#171c18 0 4px,#0b0f0c 5px 7px)!important;border-color:#354139!important}
+#timeline .year:before{content:"";position:absolute;width:22px;height:22px;border-radius:50%;background:#171d18;border:5px solid var(--green);opacity:.8}
+#timeline .year{color:transparent!important}
+#timeline .year::first-line{color:transparent}
+#timeline .year{font-variant-numeric:tabular-nums}
+#timeline .year{ text-shadow:none}
+#timeline .year{--yearColor:#fff}
+#timeline .year{color:var(--yearColor)!important}
+#timeline .year:before{z-index:-1}
+#timeline .year small{z-index:4}
+.scoreTop{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.scoreTop span{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scoreTop em{font-style:normal;font-size:11px}.scoreTop b{font-size:19px!important}.scoreTop small{font-size:10px;color:#758078}
+.player.active .miniProgress i.on{box-shadow:0 0 10px rgba(30,215,96,.25)}
+.resultIcon{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;margin:0 auto 9px;background:#121813;border:1px solid #334038;font-size:27px;font-weight:900}
+.resultLabel{font-size:12px;font-weight:950;letter-spacing:.12em}.songReveal{display:flex;flex-direction:column;gap:3px;margin:5px 0 12px}.songReveal b{font-size:20px}.songReveal span{color:#99a49d}.bonusReveal{display:inline-block;padding:8px 12px;border-radius:999px;background:rgba(30,215,96,.08);border:1px solid rgba(30,215,96,.18);font-size:12px;margin:3px 0 12px}.resultScore{padding-top:12px;border-top:1px solid #273029;color:#8f9b93}.resultScore b{color:#fff}
+.turnbox{text-align:center;max-width:390px!important}.handoffIcon{width:82px;height:82px;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;background:var(--green);color:#071009;font-size:38px;font-weight:900;box-shadow:0 0 0 9px rgba(30,215,96,.07),0 18px 40px rgba(0,0,0,.35)}.turnbox h2{font-size:32px;margin:6px 0 8px}
+#champModal .modalbox{background:radial-gradient(circle at 50% 0,rgba(30,215,96,.18),transparent 35%),#101511;border-color:rgba(30,215,96,.25)}
+@media(max-width:600px){.gamehud{padding:15px!important}.hudmeta{gap:5px}.genreBadge{max-width:165px;overflow:hidden;text-overflow:ellipsis}.roundBadge{padding:5px 9px}.bigProgress i{width:10px}.timelinePanel{padding:15px!important}.timelineTip{display:none}.mysteryVinyl{width:96px;height:96px}}
+@media(prefers-reduced-motion:reduce){.mysteryVinyl{animation:none}button,.btn{transition:none}}
+
+.filmMeta{margin:10px auto 0;padding:8px 12px;border-radius:999px;width:max-content;max-width:100%;font-size:12px;color:#d6ded8;background:rgba(255,255,255,.04);border:1px solid #2d3830}.filmReveal{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:-2px 0 12px;color:#aeb8b1;font-size:13px}.filmReveal b{color:#fff;background:#202822;border-radius:999px;padding:3px 8px;font-size:11px}.spotifyAutoPanel{margin-bottom:14px}.spotifyAutoPanel .top{align-items:center}.spotifyAutoPanel .spotify{width:auto}.spotifyAutoPanel .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.spotifyAutoPanel button{min-height:48px}@media(max-width:520px){.spotifyAutoPanel .top{align-items:stretch}.spotifyAutoPanel .spotify{width:100%}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="hero"><div class="eyebrow">JOGO MUSICAL CASEIRO</div><h1>Linha do<br>Tempo Musical</h1><p>300 músicas no baralho. O DJ abre a faixa no Spotify, você posiciona na ordem cronológica e só depois revela. O primeiro a completar 10 músicas vence.</p></section>
+
+<div style="display:flex;justify-content:flex-end"><button id="howBtn" type="button" class="btn secondary">❔ Como jogar</button></div><section id="setup" class="panel">
+  <h3>Jogadores</h3><p class="muted">Digite de 2 a 6 nomes separados por vírgula.</p>
+  <input id="names" value="João, Amanda" maxlength="120"><h3>Categoria</h3><div id="catgrid" class="catgrid"></div>
+  <div class="row" style="margin-top:12px"><button id="start" class="btn primary">Começar partida</button></div>
+  <p id="setupMsg" class="muted"></p>
+</section>
+
+<section id="game" class="hidden">
+  <div class="gamehud panel">
+  <div class="hudwho"><div class="eyebrow">AGORA JOGA</div><div id="turn" class="big"></div><div id="turnProgress" class="progressDots"></div></div>
+  <div class="hudmeta"><div id="genreBadge" class="genreBadge">💿 OFICIAL</div><div class="roundBadge">RODADA <b id="round">1</b></div></div>
+</div>
+
+  <div id="spotifyAutoPanel" class="panel spotifyAutoPanel">
+    <div class="top"><div><div class="eyebrow">SPOTIFY AUTOMÁTICO</div><b id="spotifyAutoStatus">Não conectado</b></div>
+    <button id="spotifyConnect" type="button" class="btn spotify">🟢 Conectar Spotify</button></div>
+    <div id="spotifyControls" class="hidden">
+      <button id="autoPlay" type="button" class="btn primary">▶ TOCAR MÚSICA MISTERIOSA</button>
+      <div class="row" style="margin-top:8px"><button id="autoPause" type="button" class="btn secondary">⏸ Pausar</button><button id="autoReplay" type="button" class="btn secondary">↻ Recomeçar trecho</button></div>
+      <div id="autoMsg" class="muted" style="margin-top:8px">O título permanece escondido.</div>
+    </div>
+  </div>
+  <div id="djPanel" class="panel song">
+    <div id="djHidden">
+      <div class="djtag">MODO DJ</div>
+      <div class="secret">🤫</div>
+      <h2>Entregue o celular ao adversário</h2>
+      <p class="artist">Só ele verá qual música deve colocar.</p>
+      <button id="showDj" type="button" class="btn primary">🎧 Mostrar música ao DJ</button>
+    </div>
+    <div id="djReveal" class="hidden">
+      <div class="djtag">SÓ O DJ PODE OLHAR</div>
+      <div class="disc" style="margin-top:18px"></div>
+      <div class="muted">COLOQUE ESTA FAIXA</div>
+      <h2 id="title"></h2><div id="artist" class="artist"></div><div id="filmDj" class="filmMeta hidden"></div>
+      <a id="spotify" class="spotify" target="_blank" rel="noopener">▶ Abrir no Spotify</a>
+      <div style="margin-top:14px"><button id="hideDj" type="button" class="btn secondary">🙈 Ocultar e passar o celular</button></div>
+    </div>
+    <div id="playerReady" class="hidden">
+      <div class="mysteryVinyl"><div class="vinylCore">?</div></div>
+      <div class="eyebrow mysteryEyebrow">FAIXA MISTERIOSA</div>
+      <h2>Onde ela entra na sua história?</h2>
+      <p class="artist">Ouça com atenção e escolha um espaço na sua linha do tempo.</p>
+    </div>
+  </div>
+
+  <div class="panel timelinePanel"><div class="timelineHead"><div><div class="eyebrow">SUA HISTÓRIA MUSICAL</div><h3 style="margin:3px 0 0">Linha do tempo</h3></div><div class="timelineTip">TOQUE NO <b>+</b></div></div><div id="timeline" class="timeline"></div><p id="hint" class="muted">Escolha onde você acha que a música entra.</p></div><div class="panel"><div class="top"><div><b>🎯 Palpite de Ano</b><div class="muted">Uma única tentativa por jogador. Acertou o ano exato = +1 ponto.</div></div><button id="useBonus" type="button" class="btn secondary">Usar</button></div><div id="bonusInput" class="row hidden" style="margin-top:10px"><input id="yearGuess" type="number" min="1900" max="2030" placeholder="Ano" style="max-width:180px"><button id="lockGuess" type="button" class="btn primary">Confirmar</button></div><div id="bonusStatus" class="muted" style="margin-top:8px"></div></div>
+
+  <div class="row" style="margin-top:14px">
+    <button id="reveal" class="btn primary" disabled>Revelar ano</button>
+    <button id="next" class="btn secondary hidden">Próxima rodada</button>
+    <button id="restart" class="btn secondary danger">Reiniciar</button>
+  </div>
+
+  <div id="result" class="panel result hidden"></div>
+  <div class="panel"><h3 style="margin-top:0">Placar</h3><div id="score" class="score"></div></div>
+</section>
+<div id="turnModal" class="modal hidden"><div class="modalbox turnbox">
+  <div class="handoffIcon">♫</div><div class="eyebrow">PRÓXIMA RODADA</div>
+  <h2 id="handoffName">Vez de...</h2>
+  <p class="muted">Passe o celular para o próximo jogador. Quando estiver pronto, continue para chamar o DJ.</p>
+  <button id="handoffGo" type="button" class="btn primary" style="width:100%">Estou pronto</button>
+</div></div><div id="howModal" class="modal hidden"><div class="modalbox"><div class="top"><h2>Como jogar</h2><button id="closeHow" class="btn secondary" type="button">Fechar</button></div><ol class="rules"><li>Escolha 2–6 jogadores e uma categoria.</li><li>Passe o celular ao adversário (DJ). Só ele vê a música e abre no Spotify.</li><li>O DJ inicia a música, oculta a tela e devolve o celular.</li><li>Escolha onde a faixa entra na sua timeline.</li><li>Posição correta vale <b>1 ponto</b> e adiciona a música à timeline.</li><li>Cada jogador tem <b>1 único Palpite de Ano por partida</b>. Depois de usado, ele não volta nas rodadas seguintes. Acertar exatamente vale <b>+1 ponto extra</b>.</li><li>O primeiro a <b>10 pontos</b> vence.</li><li>Ao final aparece a <b>Lista Campeã</b> com as músicas acertadas pelo vencedor.</li></ol></div></div><div id="champModal" class="modal hidden"><div class="modalbox"><div style="text-align:center"><div style="font-size:52px">🏆</div><h2 id="champTitle"></h2><p id="champMeta" class="muted"></p></div><div id="champList"></div><button id="newGame" type="button" class="btn primary" style="width:100%;margin-top:14px">Nova partida</button></div></div></main>
+<script>
+const SONGS=[
+{title:'Evidências',artist:'Chitãozinho & Xororó',year:1990},
+{title:'Garota de Ipanema',artist:'Tom Jobim',year:1963},
+{title:'Anna Júlia',artist:'Los Hermanos',year:1999},
+{title:'Tempo Perdido',artist:'Legião Urbana',year:1986},
+{title:'Ai Se Eu Te Pego',artist:'Michel Teló',year:2011},
+{title:'Cheia de Manias',artist:'Raça Negra',year:1992},
+{title:'Pais e Filhos',artist:'Legião Urbana',year:1989},
+{title:'Velha Infância',artist:'Tribalistas',year:2002},
+{title:'Boa Sorte / Good Luck',artist:'Vanessa da Mata & Ben Harper',year:2007},
+{title:'Hear Me Now',artist:'Alok, Bruno Martini & Zeeba',year:2016},
+{title:'Dona de Mim',artist:'IZA',year:2018},
+{title:'Envolver',artist:'Anitta',year:2021},
+{title:'Como Nossos Pais',artist:'Elis Regina',year:1976},
+{title:'Whisky a Go-Go',artist:'Roupa Nova',year:1984},
+{title:'Faroeste Caboclo',artist:'Legião Urbana',year:1987},
+{title:'Malandragem',artist:'Cássia Eller',year:1994},
+{title:'Pelados em Santos',artist:'Mamonas Assassinas',year:1995},
+{title:'Me Adora',artist:'Pitty',year:2009},
+{title:'Show das Poderosas',artist:'Anitta',year:2013},
+{title:'Acordando o Prédio',artist:'Luan Santana',year:2017},
+{title:'Billie Jean',artist:'Michael Jackson',year:1982},
+{title:'Take on Me',artist:'a-ha',year:1985},
+{title:'I Want It That Way',artist:'Backstreet Boys',year:1999},
+{title:'Toxic',artist:'Britney Spears',year:2003},
+{title:'Crazy in Love',artist:'Beyoncé feat. Jay-Z',year:2003},
+{title:'Viva la Vida',artist:'Coldplay',year:2008},
+{title:'Rolling in the Deep',artist:'Adele',year:2010},
+{title:'Uptown Funk',artist:'Mark Ronson feat. Bruno Mars',year:2014},
+{title:'Shape of You',artist:'Ed Sheeran',year:2017},
+{title:'Blinding Lights',artist:'The Weeknd',year:2019},
+{title:'Flowers',artist:'Miley Cyrus',year:2023},
+{title:'Dancing Queen',artist:'ABBA',year:1976},
+{title:'Another One Bites the Dust',artist:'Queen',year:1980},
+{title:'Girls Just Want to Have Fun',artist:'Cyndi Lauper',year:1983},
+{title:'Smells Like Teen Spirit',artist:'Nirvana',year:1991},
+{title:'Wonderwall',artist:'Oasis',year:1995},
+{title:'...Baby One More Time',artist:'Britney Spears',year:1998},
+{title:'Complicated',artist:'Avril Lavigne',year:2002},
+{title:'Poker Face',artist:'Lady Gaga',year:2008},
+{title:'Party in the U.S.A.',artist:'Miley Cyrus',year:2009},
+{title:'Call Me Maybe',artist:'Carly Rae Jepsen',year:2011},
+{title:'Happy',artist:'Pharrell Williams',year:2013},
+{title:'Cheap Thrills',artist:'Sia',year:2016},
+{title:'As It Was',artist:'Harry Styles',year:2022},
+{title:'Aquarela do Brasil',artist:'João Gilberto',year:1980},
+{title:'Águas de Março',artist:'Elis Regina & Tom Jobim',year:1974},
+{title:'Construção',artist:'Chico Buarque',year:1971},
+{title:'Apesar de Você',artist:'Chico Buarque',year:1970},
+{title:'O Bêbado e a Equilibrista',artist:'Elis Regina',year:1979},
+{title:'Metamorfose Ambulante',artist:'Raul Seixas',year:1973},
+{title:'Maluco Beleza',artist:'Raul Seixas',year:1977},
+{title:'Ovelha Negra',artist:'Rita Lee',year:1975},
+{title:'Mania de Você',artist:'Rita Lee',year:1979},
+{title:'Não Quero Dinheiro (Só Quero Amar)',artist:'Tim Maia',year:1971},
+{title:'Azul da Cor do Mar',artist:'Tim Maia',year:1970},
+{title:'Gostava Tanto de Você',artist:'Tim Maia',year:1973},
+{title:'Sangue Latino',artist:'Secos & Molhados',year:1973},
+{title:'Rosa de Hiroshima',artist:'Secos & Molhados',year:1973},
+{title:'Trem das Onze',artist:'Demônios da Garoa',year:1964},
+{title:'País Tropical',artist:'Jorge Ben Jor',year:1969},
+{title:'Mas Que Nada',artist:'Jorge Ben Jor',year:1963},
+{title:'Chove Chuva',artist:'Jorge Ben Jor',year:1963},
+{title:'Carinhoso',artist:'Pixinguinha',year:1917},
+{title:'Detalhes',artist:'Roberto Carlos',year:1971},
+{title:'Como É Grande o Meu Amor por Você',artist:'Roberto Carlos',year:1967},
+{title:'Emoções',artist:'Roberto Carlos',year:1981},
+{title:'Romaria',artist:'Elis Regina',year:1977},
+{title:'Cálice',artist:'Chico Buarque & Milton Nascimento',year:1978},
+{title:'Clube da Esquina Nº 2',artist:'Milton Nascimento',year:1972},
+{title:'Travessia',artist:'Milton Nascimento',year:1967},
+{title:'Andança',artist:'Beth Carvalho',year:1968},
+{title:'Coisinha do Pai',artist:'Beth Carvalho',year:1979},
+{title:'Não Deixe o Samba Morrer',artist:'Alcione',year:1975},
+{title:'Você Não Entende Nada',artist:'Caetano Veloso',year:1972},
+{title:'Sozinho',artist:'Caetano Veloso',year:1998},
+{title:'O Leãozinho',artist:'Caetano Veloso',year:1977},
+{title:'Você é Linda',artist:'Caetano Veloso',year:1983},
+{title:'Chão de Giz',artist:'Zé Ramalho',year:1978},
+{title:'Admirável Gado Novo',artist:'Zé Ramalho',year:1979},
+{title:'Frevo Mulher',artist:'Zé Ramalho',year:1979},
+{title:'Pro Dia Nascer Feliz',artist:'Barão Vermelho',year:1983},
+{title:'Bete Balanço',artist:'Barão Vermelho',year:1984},
+{title:'Exagerado',artist:'Cazuza',year:1985},
+{title:'O Tempo Não Para',artist:'Cazuza',year:1988},
+{title:'Codinome Beija-Flor',artist:'Cazuza',year:1985},
+{title:'Que País É Este',artist:'Legião Urbana',year:1987},
+{title:'Será',artist:'Legião Urbana',year:1985},
+{title:'Eduardo e Mônica',artist:'Legião Urbana',year:1986},
+{title:'Índios',artist:'Legião Urbana',year:1986},
+{title:'Primeiros Erros',artist:'Capital Inicial',year:2000},
+{title:'Música Urbana',artist:'Capital Inicial',year:1986},
+{title:'Óculos',artist:'Os Paralamas do Sucesso',year:1984},
+{title:'Meu Erro',artist:'Os Paralamas do Sucesso',year:1984},
+{title:'Alagados',artist:'Os Paralamas do Sucesso',year:1986},
+{title:'Lanterna dos Afogados',artist:'Os Paralamas do Sucesso',year:1989},
+{title:'Sonífera Ilha',artist:'Titãs',year:1984},
+{title:'Comida',artist:'Titãs',year:1987},
+{title:'Flores',artist:'Titãs',year:1989},
+{title:'Marvin',artist:'Titãs',year:1984},
+{title:'Inútil',artist:'Ultraje a Rigor',year:1983},
+{title:'Nós Vamos Invadir Sua Praia',artist:'Ultraje a Rigor',year:1985},
+{title:'Rádio Pirata',artist:'RPM',year:1985},
+{title:'Olhar 43',artist:'RPM',year:1985},
+{title:'Fullgás',artist:'Marina Lima',year:1984},
+{title:'Uma Noite e 1/2',artist:'Marina Lima',year:1987},
+{title:'A Fórmula do Amor',artist:'Léo Jaime',year:1985},
+{title:'Garota Nacional',artist:'Skank',year:1996},
+{title:'Tão Seu',artist:'Skank',year:1996},
+{title:'Resposta',artist:'Skank',year:1998},
+{title:'Mulher de Fases',artist:'Raimundos',year:1999},
+{title:'A Mais Pedida',artist:'Raimundos',year:1999},
+{title:'Proibida pra Mim',artist:'Charlie Brown Jr.',year:1997},
+{title:'Zóio de Lula',artist:'Charlie Brown Jr.',year:1999},
+{title:'Só os Loucos Sabem',artist:'Charlie Brown Jr.',year:2009},
+{title:'Dias de Luta, Dias de Glória',artist:'Charlie Brown Jr.',year:2005},
+{title:'O Segundo Sol',artist:'Cássia Eller',year:1999},
+{title:'Por Enquanto',artist:'Cássia Eller',year:1990},
+{title:'Equalize',artist:'Pitty',year:2003},
+{title:'Admirável Chip Novo',artist:'Pitty',year:2003},
+{title:'Na Sua Estante',artist:'Pitty',year:2005},
+{title:'Meu Abrigo',artist:'Melim',year:2017},
+{title:'Dois Rios',artist:'Skank',year:2003},
+{title:'Vou Deixar',artist:'Skank',year:2003},
+{title:'Só Hoje',artist:'Jota Quest',year:2002},
+{title:'Fácil',artist:'Jota Quest',year:1998},
+{title:'Dias Melhores',artist:'Jota Quest',year:2000},
+{title:'Do Seu Lado',artist:'Jota Quest',year:2003},
+{title:'Amor I Love You',artist:'Marisa Monte',year:2000},
+{title:'Ainda Bem',artist:'Marisa Monte',year:2011},
+{title:'Beija Eu',artist:'Marisa Monte',year:1991},
+{title:'Já Sei Namorar',artist:'Tribalistas',year:2002},
+{title:'É Você',artist:'Tribalistas',year:2002},
+{title:'De Janeiro a Janeiro',artist:'Roberta Campos & Nando Reis',year:2010},
+{title:'All Star',artist:'Nando Reis',year:2000},
+{title:'Por Onde Andei',artist:'Nando Reis',year:2004},
+{title:'Relicário',artist:'Nando Reis',year:2000},
+{title:'Pra Você Guardei o Amor',artist:'Nando Reis & Ana Cañas',year:2009},
+{title:'Aonde Quer Que Eu Vá',artist:'Os Paralamas do Sucesso',year:2000},
+{title:'À Sua Maneira',artist:'Capital Inicial',year:2002},
+{title:'Natasha',artist:'Capital Inicial',year:2000},
+{title:'É o Amor',artist:'Zezé Di Camargo & Luciano',year:1991},
+{title:'No Dia em Que Eu Saí de Casa',artist:'Zezé Di Camargo & Luciano',year:1995},
+{title:'Pense em Mim',artist:'Leandro & Leonardo',year:1990},
+{title:'Entre Tapas e Beijos',artist:'Leandro & Leonardo',year:1989},
+{title:'Boate Azul',artist:'Joaquim & Manuel',year:1985},
+{title:'Ainda Ontem Chorei de Saudade',artist:'João Mineiro & Marciano',year:1988},
+{title:'Telefone Mudo',artist:'Trio Parada Dura',year:1983},
+{title:'Dormi na Praça',artist:'Bruno & Marrone',year:2000},
+{title:'Choram as Rosas',artist:'Bruno & Marrone',year:2005},
+{title:'Fio de Cabelo',artist:'Chitãozinho & Xororó',year:1982},
+{title:'Sinônimos',artist:'Chitãozinho & Xororó',year:2004},
+{title:'Borboletas',artist:'Victor & Leo',year:2008},
+{title:'Fada',artist:'Victor & Leo',year:2004},
+{title:'Meteoro',artist:'Luan Santana',year:2009},
+{title:'Te Esperando',artist:'Luan Santana',year:2013},
+{title:'Infiel',artist:'Marília Mendonça',year:2015},
+{title:'Todo Mundo Vai Sofrer',artist:'Marília Mendonça',year:2019},
+{title:'10%',artist:'Maiara & Maraisa',year:2016},
+{title:'Medo Bobo',artist:'Maiara & Maraisa',year:2016},
+{title:'Largado às Traças',artist:'Zé Neto & Cristiano',year:2018},
+{title:'Propaganda',artist:'Jorge & Mateus',year:2018},
+{title:'Amo Noite e Dia',artist:'Jorge & Mateus',year:2010},
+{title:'Pode Chorar',artist:'Jorge & Mateus',year:2007},
+{title:'Camaro Amarelo',artist:'Munhoz & Mariano',year:2012},
+{title:'Balada',artist:'Gusttavo Lima',year:2011},
+{title:'Apelido Carinhoso',artist:'Gusttavo Lima',year:2017},
+{title:'Coração Cachorro',artist:'Avine Vinny & Matheus Fernandes',year:2021},
+{title:'Deixa Acontecer',artist:'Grupo Revelação',year:2002},
+{title:'Tá Escrito',artist:'Grupo Revelação',year:2009},
+{title:'Depois do Prazer',artist:'Só Pra Contrariar',year:1997},
+{title:'Essa Tal Liberdade',artist:'Só Pra Contrariar',year:1994},
+{title:'Cilada',artist:'Molejo',year:1995},
+{title:'Brincadeira de Criança',artist:'Molejo',year:1997},
+{title:'Derê',artist:'Soweto',year:1998},
+{title:'Temporal',artist:'Art Popular',year:1996},
+{title:'Me Apaixonei pela Pessoa Errada',artist:'Exaltasamba',year:1999},
+{title:'Livre Pra Voar',artist:'Exaltasamba',year:2007},
+{title:'Depois',artist:'Marisa Monte',year:2011},
+{title:'Eva',artist:'Banda Eva',year:1997},
+{title:'Beleza Rara',artist:'Banda Eva',year:1996},
+{title:'Milla',artist:'Netinho',year:1996},
+{title:'Arerê',artist:'Ivete Sangalo',year:1997},
+{title:'Festa',artist:'Ivete Sangalo',year:2001},
+{title:'Sorte Grande',artist:'Ivete Sangalo',year:2003},
+{title:'Prefixo de Verão',artist:'Banda Mel',year:1990},
+{title:'Rebolation',artist:'Parangolé',year:2009},
+{title:'Bang',artist:'Anitta',year:2015},
+{title:'Downtown',artist:'Anitta & J Balvin',year:2017},
+{title:'Pesadão',artist:'IZA feat. Marcelo Falcão',year:2017},
+{title:'Brisa',artist:'IZA',year:2019},
+{title:'AmarElo',artist:'Emicida feat. Majur & Pabllo Vittar',year:2019},
+{title:'Boa Esperança',artist:'Emicida',year:2015},
+{title:'Burguesinha',artist:'Seu Jorge',year:2007},
+{title:'Mina do Condomínio',artist:'Seu Jorge',year:2007},
+{title:'Amiga da Minha Mulher',artist:'Seu Jorge',year:2011},
+{title:'Trevo (Tu)',artist:'ANAVITÓRIA & Tiago Iorc',year:2016},
+{title:'Coisa Linda',artist:'Tiago Iorc',year:2015},
+{title:'Amei Te Ver',artist:'Tiago Iorc',year:2015},
+{title:'O Sol',artist:'Vitor Kley',year:2017},
+{title:'Pupila',artist:'ANAVITÓRIA & Vitor Kley',year:2019},
+{title:'Malvadão 3',artist:'Xamã',year:2021},
+{title:'Leão',artist:'Marília Mendonça',year:2022},
+{title:'Hey Jude',artist:'The Beatles',year:1968},
+{title:'Come Together',artist:'The Beatles',year:1969},
+{title:'Let It Be',artist:'The Beatles',year:1970},
+{title:'Here Comes the Sun',artist:'The Beatles',year:1969},
+{title:'Paint It, Black',artist:'The Rolling Stones',year:1966},
+{title:'Satisfaction',artist:'The Rolling Stones',year:1965},
+{title:'Hotel California',artist:'Eagles',year:1976},
+{title:'Dreams',artist:'Fleetwood Mac',year:1977},
+{title:'Go Your Own Way',artist:'Fleetwood Mac',year:1977},
+{title:'Stayin\' Alive',artist:'Bee Gees',year:1977},
+{title:'How Deep Is Your Love',artist:'Bee Gees',year:1977},
+{title:'September',artist:'Earth, Wind & Fire',year:1978},
+{title:'I Will Survive',artist:'Gloria Gaynor',year:1978},
+{title:'YMCA',artist:'Village People',year:1978},
+{title:'Don\'t Stop Me Now',artist:'Queen',year:1978},
+{title:'Bohemian Rhapsody',artist:'Queen',year:1975},
+{title:'We Will Rock You',artist:'Queen',year:1977},
+{title:'Imagine',artist:'John Lennon',year:1971},
+{title:'Rocket Man',artist:'Elton John',year:1972},
+{title:'Tiny Dancer',artist:'Elton John',year:1971},
+{title:'Superstition',artist:'Stevie Wonder',year:1972},
+{title:'Isn\'t She Lovely',artist:'Stevie Wonder',year:1976},
+{title:'What\'s Going On',artist:'Marvin Gaye',year:1971},
+{title:'American Pie',artist:'Don McLean',year:1971},
+{title:'Sweet Home Alabama',artist:'Lynyrd Skynyrd',year:1974},
+{title:'Thriller',artist:'Michael Jackson',year:1982},
+{title:'Beat It',artist:'Michael Jackson',year:1982},
+{title:'Like a Prayer',artist:'Madonna',year:1989},
+{title:'Like a Virgin',artist:'Madonna',year:1984},
+{title:'Material Girl',artist:'Madonna',year:1984},
+{title:'Wake Me Up Before You Go-Go',artist:'Wham!',year:1984},
+{title:'Careless Whisper',artist:'George Michael',year:1984},
+{title:'Every Breath You Take',artist:'The Police',year:1983},
+{title:'Africa',artist:'Toto',year:1982},
+{title:'Eye of the Tiger',artist:'Survivor',year:1982},
+{title:'Footloose',artist:'Kenny Loggins',year:1984},
+{title:'Heaven Is a Place on Earth',artist:'Belinda Carlisle',year:1987},
+{title:'Faith',artist:'George Michael',year:1987},
+{title:'You Give Love a Bad Name',artist:'Bon Jovi',year:1986},
+{title:'With or Without You',artist:'U2',year:1987},
+{title:'I Still Haven\'t Found What I\'m Looking For',artist:'U2',year:1987},
+{title:'The Final Countdown',artist:'Europe',year:1986},
+{title:'Never Gonna Give You Up',artist:'Rick Astley',year:1987},
+{title:'Maniac',artist:'Michael Sembello',year:1983},
+{title:'Total Eclipse of the Heart',artist:'Bonnie Tyler',year:1983},
+{title:'What\'s Love Got to Do with It',artist:'Tina Turner',year:1984},
+{title:'Don\'t You (Forget About Me)',artist:'Simple Minds',year:1985},
+{title:'Everybody Wants to Rule the World',artist:'Tears for Fears',year:1985},
+{title:'The Power of Love',artist:'Huey Lewis and the News',year:1985},
+{title:'I Think We\'re Alone Now',artist:'Tiffany',year:1987},
+{title:'Losing My Religion',artist:'R.E.M.',year:1991},
+{title:'Zombie',artist:'The Cranberries',year:1994},
+{title:'What\'s Up?',artist:'4 Non Blondes',year:1992},
+{title:'Iris',artist:'Goo Goo Dolls',year:1998},
+{title:'Torn',artist:'Natalie Imbruglia',year:1997},
+{title:'No Scrubs',artist:'TLC',year:1999},
+{title:'Wannabe',artist:'Spice Girls',year:1996},
+{title:'Everybody (Backstreet\'s Back)',artist:'Backstreet Boys',year:1997},
+{title:'Genie in a Bottle',artist:'Christina Aguilera',year:1999},
+{title:'Believe',artist:'Cher',year:1998},
+{title:'Kiss Me',artist:'Sixpence None the Richer',year:1998},
+{title:'MMMBop',artist:'Hanson',year:1997},
+{title:'My Heart Will Go On',artist:'Céline Dion',year:1997},
+{title:'I Don\'t Want to Miss a Thing',artist:'Aerosmith',year:1998},
+{title:'Under the Bridge',artist:'Red Hot Chili Peppers',year:1991},
+{title:'Californication',artist:'Red Hot Chili Peppers',year:1999},
+{title:'Enter Sandman',artist:'Metallica',year:1991},
+{title:'Nothing Else Matters',artist:'Metallica',year:1991},
+{title:'Basket Case',artist:'Green Day',year:1994},
+{title:'Don\'t Speak',artist:'No Doubt',year:1995},
+{title:'Oops!... I Did It Again',artist:'Britney Spears',year:2000},
+{title:'Beautiful',artist:'Christina Aguilera',year:2002},
+{title:'Since U Been Gone',artist:'Kelly Clarkson',year:2004},
+{title:'Yeah!',artist:'Usher feat. Lil Jon & Ludacris',year:2004},
+{title:'Hips Don\'t Lie',artist:'Shakira feat. Wyclef Jean',year:2006},
+{title:'Whenever, Wherever',artist:'Shakira',year:2001},
+{title:'Umbrella',artist:'Rihanna feat. Jay-Z',year:2007},
+{title:'Don\'t Stop the Music',artist:'Rihanna',year:2007},
+{title:'Single Ladies (Put a Ring on It)',artist:'Beyoncé',year:2008},
+{title:'Halo',artist:'Beyoncé',year:2008},
+{title:'Bad Romance',artist:'Lady Gaga',year:2009},
+{title:'I Gotta Feeling',artist:'The Black Eyed Peas',year:2009},
+{title:'Where Is the Love?',artist:'The Black Eyed Peas',year:2003},
+{title:'Clocks',artist:'Coldplay',year:2002},
+{title:'The Scientist',artist:'Coldplay',year:2002},
+{title:'Mr. Brightside',artist:'The Killers',year:2003},
+{title:'In the End',artist:'Linkin Park',year:2000},
+{title:'Numb',artist:'Linkin Park',year:2003},
+{title:'Bring Me to Life',artist:'Evanescence',year:2003},
+{title:'Seven Nation Army',artist:'The White Stripes',year:2003},
+{title:'Hey Ya!',artist:'Outkast',year:2003},
+{title:'Crazy',artist:'Gnarls Barkley',year:2006},
+{title:'Rehab',artist:'Amy Winehouse',year:2006},
+{title:'You\'re Beautiful',artist:'James Blunt',year:2004},
+{title:'Apologize',artist:'Timbaland feat. OneRepublic',year:2007},
+{title:'Just the Way You Are',artist:'Bruno Mars',year:2010},
+{title:'Locked Out of Heaven',artist:'Bruno Mars',year:2012},
+{title:'Someone Like You',artist:'Adele',year:2011}
+];
+let players=[],deck=[],turn=0,round=1,current=null,choice=null,revealed=false,playerCanGuess=false,category="Oficial",winner=null;
+const $=x=>document.getElementById(x);
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function spotifyUrl(s){return "https://open.spotify.com/search/"+encodeURIComponent(s.title+" "+s.artist)}
+let audioCtx=null;
+function audioContext(){if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();return audioCtx}
+function tone(freq,start,duration,type="sine",gain=.055){
+ const c=audioContext(),o=c.createOscillator(),g=c.createGain();
+ o.type=type;o.frequency.setValueAtTime(freq,c.currentTime+start);
+ g.gain.setValueAtTime(.0001,c.currentTime+start);
+ g.gain.exponentialRampToValueAtTime(gain,c.currentTime+start+.015);
+ g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+start+duration);
+ o.connect(g);g.connect(c.destination);o.start(c.currentTime+start);o.stop(c.currentTime+start+duration+.02)
+}
+function playCorrect(){tone(523.25,0,.13,"sine",.05);tone(659.25,.11,.15,"sine",.055);tone(783.99,.23,.24,"sine",.06)}
+function playWrong(){tone(220,0,.18,"triangle",.05);tone(164.81,.15,.30,"triangle",.055)}
+
+const SPOTIFY_CLIENT_ID="d7ecc4bd206743ab8479395135861a24";
+const SPOTIFY_REDIRECT_URI=(location.hostname==="127.0.0.1"||location.hostname==="localhost")
+ ? "http://127.0.0.1:5500/"
+ : "https://joaovbaltazar-maker.github.io/hitster-deluxe/";
+const SPOTIFY_SCOPES="user-read-playback-state user-modify-playback-state";
+let spotifyConnected=false,spotifyDeviceId=null,lastStartMs=0;
+
+function spRandom(n=64){const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~",a=crypto.getRandomValues(new Uint8Array(n));return Array.from(a,x=>chars[x%chars.length]).join("")}
+async function spChallenge(v){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v));return btoa(String.fromCharCode(...new Uint8Array(b))).replace(/=/g,"").replace(/\+/g,"-").replace(/\//g,"_")}
+async function spotifyLogin(){
+ const verifier=spRandom(),state=spRandom(24);localStorage.setItem("sp_verifier",verifier);localStorage.setItem("sp_state",state);
+ const q=new URLSearchParams({client_id:SPOTIFY_CLIENT_ID,response_type:"code",redirect_uri:SPOTIFY_REDIRECT_URI,scope:SPOTIFY_SCOPES,code_challenge_method:"S256",code_challenge:await spChallenge(verifier),state});
+ location.href="https://accounts.spotify.com/authorize?"+q;
+}
+function spSave(d){localStorage.setItem("sp_access",d.access_token);if(d.refresh_token)localStorage.setItem("sp_refresh",d.refresh_token);localStorage.setItem("sp_expires",String(Date.now()+d.expires_in*1000))}
+async function spExchange(code){
+ const r=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({client_id:SPOTIFY_CLIENT_ID,grant_type:"authorization_code",code,redirect_uri:SPOTIFY_REDIRECT_URI,code_verifier:localStorage.getItem("sp_verifier")})});
+ const d=await r.json();if(!r.ok)throw Error(d.error_description||d.error||"Falha na conexão.");spSave(d);history.replaceState({},document.title,SPOTIFY_REDIRECT_URI)
+}
+async function spRefresh(){const rt=localStorage.getItem("sp_refresh");if(!rt)throw Error("Conecte o Spotify novamente.");const r=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({client_id:SPOTIFY_CLIENT_ID,grant_type:"refresh_token",refresh_token:rt})});const d=await r.json();if(!r.ok)throw Error(d.error_description||"Falha ao renovar Spotify.");spSave(d);return d.access_token}
+async function spToken(){const a=localStorage.getItem("sp_access");if(a&&Date.now()<Number(localStorage.getItem("sp_expires")||0)-60000)return a;return spRefresh()}
+async function spApi(path,opt={}){
+ let t=await spToken(),r=await fetch("https://api.spotify.com/v1"+path,{...opt,headers:{Authorization:"Bearer "+t,...(opt.headers||{})}});
+ if(r.status===401){t=await spRefresh();r=await fetch("https://api.spotify.com/v1"+path,{...opt,headers:{Authorization:"Bearer "+t,...(opt.headers||{})}})}
+ if(!r.ok&&r.status!==204){let x={};try{x=await r.json()}catch{};if(r.status===429)throw Error("Limite temporário do Spotify. Aguarde um pouco.");throw Error(x?.error?.message||("Spotify HTTP "+r.status))}
+ return r.status===204?null:r.json()
+}
+function spKey(x){return "sp_uri_v2:"+x.title+"|||"+x.artist}
+function normalizeSp(x){return String(x||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim()}
+async function resolveSpotifyTrack(track){
+ const cached=localStorage.getItem(spKey(track));if(cached)return cached;
+ const q=`track:${track.title} artist:${track.artist}`;
+ const d=await spApi("/search?type=track&limit=5&q="+encodeURIComponent(q));
+ const items=d?.tracks?.items||[];if(!items.length)throw Error("Não encontrei esta faixa no Spotify.");
+ const ta=normalizeSp(track.title),aa=normalizeSp(track.artist);
+ let best=items[0],bestScore=-1;
+ for(const x of items){const xt=normalizeSp(x.name),artists=normalizeSp((x.artists||[]).map(a=>a.name).join(" "));
+   let score=(xt===ta?5:xt.includes(ta)||ta.includes(xt)?3:0)+(artists.includes(aa)||aa.includes(artists)?4:0);
+   if(score>bestScore){best=x;bestScore=score}
+ }
+ if(!best?.uri)throw Error("Faixa sem URI do Spotify.");localStorage.setItem(spKey(track),best.uri);return best.uri
+}
+async function chooseSpotifyDevice(){
+ const d=await spApi("/me/player/devices"),devices=d?.devices||[];if(!devices.length)throw Error("Abra o app Spotify e dê play em qualquer música uma vez.");
+ const active=devices.find(x=>x.is_active)||devices[0];spotifyDeviceId=active.id;return active
+}
+async function setSpotifyConnected(){
+ try{const me=await spApi("/me");spotifyConnected=true;$("spotifyAutoStatus").textContent="✓ "+(me.display_name||"Spotify conectado");$("spotifyConnect").textContent="✓ Conectado";$("spotifyControls").classList.remove("hidden");return true}
+ catch(e){spotifyConnected=false;$("spotifyAutoStatus").textContent="Não conectado";return false}
+}
+async function playMystery(replay=false){
+ try{
+  $("autoPlay").disabled=true;$("autoMsg").textContent="Preparando faixa secreta…";
+  const device=await chooseSpotifyDevice(),uri=await resolveSpotifyTrack(current);
+  // Start around 25s where possible; replay uses the same position.
+  lastStartMs=replay&&lastStartMs?lastStartMs:25000;
+  const path="/me/player/play"+(spotifyDeviceId?"?device_id="+encodeURIComponent(spotifyDeviceId):"");
+  await spApi(path,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({uris:[uri],position_ms:lastStartMs})});
+  $("djHidden").classList.add("hidden");$("djReveal").classList.add("hidden");$("playerReady").classList.remove("hidden");
+  playerCanGuess=true;$("hint").textContent="Ouça a música e escolha onde ela entra na sua linha do tempo.";
+  $("autoMsg").textContent="🔊 Tocando no "+device.name+" • título escondido";
+ }catch(e){$("autoMsg").textContent="⚠ "+e.message+" Use o Modo DJ abaixo se necessário."}
+ finally{$("autoPlay").disabled=false}
+}
+async function pauseMystery(){try{await spApi("/me/player/pause"+(spotifyDeviceId?"?device_id="+encodeURIComponent(spotifyDeviceId):""),{method:"PUT"});$("autoMsg").textContent="⏸ Música pausada."}catch(e){$("autoMsg").textContent="⚠ "+e.message}}
+$("spotifyConnect").onclick=spotifyLogin;
+$("autoPlay").onclick=()=>playMystery(false);
+$("autoReplay").onclick=()=>playMystery(true);
+$("autoPause").onclick=pauseMystery;
+async function spotifyBootstrap(){
+ const q=new URLSearchParams(location.search),code=q.get("code"),err=q.get("error");
+ if(err){$("spotifyAutoStatus").textContent="Autorização recusada.";return}
+ if(code){
+   if(q.get("state")!==localStorage.getItem("sp_state")){$("spotifyAutoStatus").textContent="Falha de segurança no login.";return}
+   try{await spExchange(code)}catch(e){$("spotifyAutoStatus").textContent=e.message;return}
+ }
+ if(localStorage.getItem("sp_access"))await setSpotifyConnected();
+}
+
+function pointDots(n){return Array.from({length:10},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join("")}
+function scores(){
+ $("score").innerHTML=players.map((p,i)=>`<div class="player ${i===turn?'active':''}"><div class="scoreTop"><span>${esc(p.name)} ${p.bonusUsed?"":"<em>🎯</em>"}</span><b>${p.points}<small>/10</small></b></div><div class="miniProgress">${pointDots(Math.min(p.points,10))}</div></div>`).join("");
+ const p=players[turn]; if(p){$("turnProgress").innerHTML=`<span>${p.points}/10</span><div class="miniProgress bigProgress">${pointDots(Math.min(p.points,10))}</div>`}
+}
+function timeline(){
+ const years=players[turn].timeline; let out="";
+ for(let i=0;i<=years.length;i++){
+   out+=`<button type="button" class="slot ${choice===i?'selected':''}" data-i="${i}" aria-label="${i===0?'Antes de '+years[0]:i===years.length?'Depois de '+years[years.length-1]:'Entre '+years[i-1]+' e '+years[i]}"><span>+</span><small>${i===0?'ANTES':i===years.length?'DEPOIS':''}</small></button>`;
+   if(i<years.length){
+   const p=players[turn];
+   const isSeed=p.seed && years[i]===p.seed.year && !p.hits.some(h=>h.year===years[i]);
+   out+=`<div class="year">${years[i]}${isSeed?'<small style="display:block;font-size:9px;opacity:.65;margin-top:2px">INÍCIO</small>':''}</div>`;
+ }
+ }
+ $("timeline").innerHTML=out;
+ document.querySelectorAll(".slot").forEach(b=>b.onclick=()=>{if(revealed||!playerCanGuess)return;choice=+b.dataset.i;$("reveal").disabled=false;$("hint").textContent="Palpite registrado. Agora revele o ano.";timeline()});
+}
+function draw(){
+ if(!deck.length){
+   const source=buildCategoryDeck(category);
+   if(!source.length){alert("Esta categoria está sem músicas cadastradas.");return}
+   deck=shuffle(source);
+ }
+ current=deck.pop();choice=null;revealed=false;playerCanGuess=false;
+ const activePlayer=players[turn];activePlayer.bonusGuess=null;
+ $("yearGuess").value="";$("bonusInput").classList.add("hidden");
+ $("useBonus").disabled=activePlayer.bonusUsed;
+ $("bonusStatus").textContent=activePlayer.bonusUsed?"🎯 Palpite de Ano já utilizado nesta partida.":"🎯 1 tentativa disponível nesta partida.";
+ $("turn").textContent=players[turn].name;$("round").textContent=round;
+ const genreIcons={"Oficial":"💿","Pop":"✨","Funk":"🔊","Rock":"⚡","Sertanejo":"🤠","Pagode & Samba":"🥁","MPB Brasileira":"🎸","Hits 80 & 90":"📼","Trilhas de Filmes":"🎬"};
+ $("genreBadge").textContent=(genreIcons[category]||"♪")+" "+category.toUpperCase();
+ $("title").textContent=current.title;$("artist").textContent=current.artist; const filmDj=$("filmDj");if(current.film){filmDj.textContent="🎬 "+current.film+" ("+current.filmYear+")";filmDj.classList.remove("hidden")}else{filmDj.textContent="";filmDj.classList.add("hidden")}
+ $("spotify").href=spotifyUrl(current);
+ $("djHidden").classList.remove("hidden");$("djReveal").classList.add("hidden");$("playerReady").classList.add("hidden");
+ lastStartMs=0;$("autoMsg").textContent=spotifyConnected?"Pronto. Toque para iniciar a faixa secreta no Spotify.":"Conecte o Spotify acima ou use o Modo DJ abaixo.";
+ $("reveal").disabled=true;$("reveal").classList.remove("hidden");$("next").classList.add("hidden");$("result").classList.add("hidden");
+ $("hint").textContent="Aguarde o DJ colocar a música e devolver o celular.";
+ timeline();scores();
+}
+const categoryNames=["Oficial","Pop","Funk","Rock","Sertanejo","Pagode & Samba","MPB Brasileira","Hits 80 & 90","Trilhas de Filmes"];
+const CATEGORY_DECKS={"Trilhas de Filmes":[{title:"Over the Rainbow",artist:"Judy Garland",year:1939,film:"O Mágico de Oz",filmYear:1939},{title:"As Time Goes By",artist:"Dooley Wilson",year:1942,film:"Casablanca",filmYear:1942},{title:"White Christmas",artist:"Bing Crosby",year:1942,film:"Duas Semanas de Prazer",filmYear:1942},{title:"Have Yourself a Merry Little Christmas",artist:"Judy Garland",year:1944,film:"Agora Seremos Felizes",filmYear:1944},{title:"The Trolley Song",artist:"Judy Garland",year:1944,film:"Agora Seremos Felizes",filmYear:1944},{title:"Singin' in the Rain",artist:"Gene Kelly",year:1952,film:"Cantando na Chuva",filmYear:1952},{title:"Que Sera, Sera",artist:"Doris Day",year:1956,film:"O Homem que Sabia Demais",filmYear:1956},{title:"Jailhouse Rock",artist:"Elvis Presley",year:1957,film:"O Prisioneiro do Rock",filmYear:1957},{title:"Moon River",artist:"Audrey Hepburn",year:1961,film:"Bonequinha de Luxo",filmYear:1961},{title:"Supercalifragilisticexpialidocious",artist:"Julie Andrews & Dick Van Dyke",year:1964,film:"Mary Poppins",filmYear:1964},{title:"Chim Chim Cher-ee",artist:"Dick Van Dyke & Julie Andrews",year:1964,film:"Mary Poppins",filmYear:1964},{title:"A Spoonful of Sugar",artist:"Julie Andrews",year:1964,film:"Mary Poppins",filmYear:1964},{title:"The Sound of Music",artist:"Julie Andrews",year:1965,film:"A Noviça Rebelde",filmYear:1965},{title:"My Favorite Things",artist:"Julie Andrews",year:1965,film:"A Noviça Rebelde",filmYear:1965},{title:"Do-Re-Mi",artist:"Julie Andrews",year:1965,film:"A Noviça Rebelde",filmYear:1965},{title:"Mrs. Robinson",artist:"Simon & Garfunkel",year:1968,film:"A Primeira Noite de um Homem",filmYear:1967},{title:"Raindrops Keep Fallin' on My Head",artist:"B. J. Thomas",year:1969,film:"Butch Cassidy",filmYear:1969},{title:"Everybody's Talkin'",artist:"Harry Nilsson",year:1968,film:"Perdidos na Noite",filmYear:1969},{title:"Live and Let Die",artist:"Paul McCartney & Wings",year:1973,film:"Com 007 Viva e Deixe Morrer",filmYear:1973},{title:"The Way We Were",artist:"Barbra Streisand",year:1973,film:"Nosso Amor de Ontem",filmYear:1973},{title:"Knockin' on Heaven's Door",artist:"Bob Dylan",year:1973,film:"Pat Garrett & Billy the Kid",filmYear:1973},{title:"Stayin' Alive",artist:"Bee Gees",year:1977,film:"Os Embalos de Sábado à Noite",filmYear:1977},{title:"Night Fever",artist:"Bee Gees",year:1978,film:"Os Embalos de Sábado à Noite",filmYear:1977},{title:"How Deep Is Your Love",artist:"Bee Gees",year:1977,film:"Os Embalos de Sábado à Noite",filmYear:1977},{title:"You're the One That I Want",artist:"John Travolta & Olivia Newton-John",year:1978,film:"Grease: Nos Tempos da Brilhantina",filmYear:1978},{title:"Summer Nights",artist:"John Travolta & Olivia Newton-John",year:1978,film:"Grease: Nos Tempos da Brilhantina",filmYear:1978},{title:"Hopelessly Devoted to You",artist:"Olivia Newton-John",year:1978,film:"Grease: Nos Tempos da Brilhantina",filmYear:1978},{title:"Grease",artist:"Frankie Valli",year:1978,film:"Grease: Nos Tempos da Brilhantina",filmYear:1978},{title:"The Rose",artist:"Bette Midler",year:1979,film:"A Rosa",filmYear:1979},{title:"9 to 5",artist:"Dolly Parton",year:1980,film:"Como Eliminar seu Chefe",filmYear:1980},{title:"Fame",artist:"Irene Cara",year:1980,film:"Fama",filmYear:1980},{title:"Arthur's Theme (Best That You Can Do)",artist:"Christopher Cross",year:1981,film:"Arthur, o Milionário Sedutor",filmYear:1981},{title:"Eye of the Tiger",artist:"Survivor",year:1982,film:"Rocky III: O Desafio Supremo",filmYear:1982},{title:"Up Where We Belong",artist:"Joe Cocker & Jennifer Warnes",year:1982,film:"A Força do Destino",filmYear:1982},{title:"Flashdance... What a Feeling",artist:"Irene Cara",year:1983,film:"Flashdance: Em Ritmo de Embalo",filmYear:1983},{title:"Maniac",artist:"Michael Sembello",year:1983,film:"Flashdance: Em Ritmo de Embalo",filmYear:1983},{title:"Footloose",artist:"Kenny Loggins",year:1984,film:"Footloose: Ritmo Louco",filmYear:1984},{title:"Let's Hear It for the Boy",artist:"Deniece Williams",year:1984,film:"Footloose: Ritmo Louco",filmYear:1984},{title:"Ghostbusters",artist:"Ray Parker Jr.",year:1984,film:"Os Caça-Fantasmas",filmYear:1984},{title:"When Doves Cry",artist:"Prince",year:1984,film:"Purple Rain",filmYear:1984},{title:"Purple Rain",artist:"Prince",year:1984,film:"Purple Rain",filmYear:1984},{title:"The Power of Love",artist:"Huey Lewis and the News",year:1985,film:"De Volta para o Futuro",filmYear:1985},{title:"Don't You (Forget About Me)",artist:"Simple Minds",year:1985,film:"Clube dos Cinco",filmYear:1985},{title:"St. Elmo's Fire (Man in Motion)",artist:"John Parr",year:1985,film:"O Primeiro Ano do Resto de Nossas Vidas",filmYear:1985},{title:"A View to a Kill",artist:"Duran Duran",year:1985,film:"007 - Na Mira dos Assassinos",filmYear:1985},{title:"Take My Breath Away",artist:"Berlin",year:1986,film:"Top Gun: Ases Indomáveis",filmYear:1986},{title:"Danger Zone",artist:"Kenny Loggins",year:1986,film:"Top Gun: Ases Indomáveis",filmYear:1986},{title:"In Your Eyes",artist:"Peter Gabriel",year:1986,film:"Digam o Que Quiserem",filmYear:1989},{title:"(I've Had) The Time of My Life",artist:"Bill Medley & Jennifer Warnes",year:1987,film:"Dirty Dancing: Ritmo Quente",filmYear:1987},{title:"Hungry Eyes",artist:"Eric Carmen",year:1987,film:"Dirty Dancing: Ritmo Quente",filmYear:1987},{title:"Nothing's Gonna Stop Us Now",artist:"Starship",year:1987,film:"Manequim",filmYear:1987},{title:"The Living Daylights",artist:"a-ha",year:1987,film:"007 - Marcado para a Morte",filmYear:1987},{title:"Kokomo",artist:"The Beach Boys",year:1988,film:"Cocktail",filmYear:1988},{title:"Wind Beneath My Wings",artist:"Bette Midler",year:1988,film:"Amigas para Sempre",filmYear:1988},{title:"Part of Your World",artist:"Jodi Benson",year:1989,film:"A Pequena Sereia",filmYear:1989},{title:"Under the Sea",artist:"Samuel E. Wright",year:1989,film:"A Pequena Sereia",filmYear:1989},{title:"Kiss the Girl",artist:"Samuel E. Wright",year:1989,film:"A Pequena Sereia",filmYear:1989},{title:"Oh, Pretty Woman",artist:"Roy Orbison",year:1964,film:"Uma Linda Mulher",filmYear:1990},{title:"Unchained Melody",artist:"The Righteous Brothers",year:1965,film:"Ghost: Do Outro Lado da Vida",filmYear:1990},{title:"I Will Always Love You",artist:"Whitney Houston",year:1992,film:"O Guarda-Costas",filmYear:1992},{title:"A Whole New World",artist:"Peabo Bryson & Regina Belle",year:1992,film:"Aladdin",filmYear:1992},{title:"Friend Like Me",artist:"Robin Williams",year:1992,film:"Aladdin",filmYear:1992},{title:"Beauty and the Beast",artist:"Céline Dion & Peabo Bryson",year:1991,film:"A Bela e a Fera",filmYear:1991},{title:"Be Our Guest",artist:"Angela Lansbury & Jerry Orbach",year:1991,film:"A Bela e a Fera",filmYear:1991},{title:"Can You Feel the Love Tonight",artist:"Elton John",year:1994,film:"O Rei Leão",filmYear:1994},{title:"Circle of Life",artist:"Carmen Twillie & Lebo M",year:1994,film:"O Rei Leão",filmYear:1994},{title:"Hakuna Matata",artist:"Nathan Lane, Ernie Sabella, Jason Weaver & Joseph Williams",year:1994,film:"O Rei Leão",filmYear:1994},{title:"Colors of the Wind",artist:"Judy Kuhn",year:1995,film:"Pocahontas",filmYear:1995},{title:"You've Got a Friend in Me",artist:"Randy Newman",year:1995,film:"Toy Story",filmYear:1995},{title:"Gangsta's Paradise",artist:"Coolio feat. L.V.",year:1995,film:"Mentes Perigosas",filmYear:1995},{title:"Kiss from a Rose",artist:"Seal",year:1994,film:"Batman Eternamente",filmYear:1995},{title:"GoldenEye",artist:"Tina Turner",year:1995,film:"007 contra GoldenEye",filmYear:1995},{title:"I Believe I Can Fly",artist:"R. Kelly",year:1996,film:"Space Jam: O Jogo do Século",filmYear:1996},{title:"Don't Cry for Me Argentina",artist:"Madonna",year:1996,film:"Evita",filmYear:1996},{title:"You Must Love Me",artist:"Madonna",year:1996,film:"Evita",filmYear:1996},{title:"My Heart Will Go On",artist:"Céline Dion",year:1997,film:"Titanic",filmYear:1997},{title:"Men in Black",artist:"Will Smith",year:1997,film:"MIB: Homens de Preto",filmYear:1997},{title:"I Don't Want to Miss a Thing",artist:"Aerosmith",year:1998,film:"Armageddon",filmYear:1998},{title:"Iris",artist:"Goo Goo Dolls",year:1998,film:"Cidade dos Anjos",filmYear:1998},{title:"When You Believe",artist:"Whitney Houston & Mariah Carey",year:1998,film:"O Príncipe do Egito",filmYear:1998},{title:"You'll Be in My Heart",artist:"Phil Collins",year:1999,film:"Tarzan",filmYear:1999},{title:"Beautiful Stranger",artist:"Madonna",year:1999,film:"Austin Powers: O Agente Bond Cama",filmYear:1999},{title:"When She Loved Me",artist:"Sarah McLachlan",year:1999,film:"Toy Story 2",filmYear:1999},{title:"All Star",artist:"Smash Mouth",year:1999,film:"Shrek",filmYear:2001},{title:"Pure Shores",artist:"All Saints",year:2000,film:"A Praia",filmYear:2000},{title:"Independent Women, Pt. 1",artist:"Destiny's Child",year:2000,film:"As Panteras",filmYear:2000},{title:"Come What May",artist:"Nicole Kidman & Ewan McGregor",year:2001,film:"Moulin Rouge: Amor em Vermelho",filmYear:2001},{title:"Lady Marmalade",artist:"Christina Aguilera, Lil' Kim, Mýa & Pink",year:2001,film:"Moulin Rouge: Amor em Vermelho",filmYear:2001},{title:"Hero",artist:"Chad Kroeger feat. Josey Scott",year:2002,film:"Homem-Aranha",filmYear:2002},{title:"Lose Yourself",artist:"Eminem",year:2002,film:"8 Mile: Rua das Ilusões",filmYear:2002},{title:"Accidentally in Love",artist:"Counting Crows",year:2004,film:"Shrek 2",filmYear:2004},{title:"Decode",artist:"Paramore",year:2008,film:"Crepúsculo",filmYear:2008},{title:"New Divide",artist:"Linkin Park",year:2009,film:"Transformers: A Vingança dos Derrotados",filmYear:2009},{title:"Young and Beautiful",artist:"Lana Del Rey",year:2013,film:"O Grande Gatsby",filmYear:2013},{title:"Happy",artist:"Pharrell Williams",year:2013,film:"Meu Malvado Favorito 2",filmYear:2013},{title:"Let It Go",artist:"Idina Menzel",year:2013,film:"Frozen: Uma Aventura Congelante",filmYear:2013},{title:"Everything Is Awesome",artist:"Tegan and Sara feat. The Lonely Island",year:2014,film:"Uma Aventura LEGO",filmYear:2014},{title:"Glory",artist:"Common & John Legend",year:2014,film:"Selma: Uma Luta pela Igualdade",filmYear:2014},{title:"Earned It",artist:"The Weeknd",year:2014,film:"Cinquenta Tons de Cinza",filmYear:2015},{title:"See You Again",artist:"Wiz Khalifa feat. Charlie Puth",year:2015,film:"Velozes & Furiosos 7",filmYear:2015},{title:"Writing's on the Wall",artist:"Sam Smith",year:2015,film:"007 Contra Spectre",filmYear:2015},{title:"Can't Stop the Feeling!",artist:"Justin Timberlake",year:2016,film:"Trolls",filmYear:2016},{title:"How Far I'll Go",artist:"Auli'i Cravalho",year:2016,film:"Moana: Um Mar de Aventuras",filmYear:2016},{title:"City of Stars",artist:"Ryan Gosling & Emma Stone",year:2016,film:"La La Land: Cantando Estações",filmYear:2016},{title:"Another Day of Sun",artist:"La La Land Cast",year:2016,film:"La La Land: Cantando Estações",filmYear:2016},{title:"Audition (The Fools Who Dream)",artist:"Emma Stone",year:2016,film:"La La Land: Cantando Estações",filmYear:2016},{title:"Remember Me",artist:"Miguel feat. Natalia Lafourcade",year:2017,film:"Viva: A Vida É uma Festa",filmYear:2017},{title:"This Is Me",artist:"Keala Settle & The Greatest Showman Ensemble",year:2017,film:"O Rei do Show",filmYear:2017},{title:"Rewrite the Stars",artist:"Zac Efron & Zendaya",year:2017,film:"O Rei do Show",filmYear:2017},{title:"Shallow",artist:"Lady Gaga & Bradley Cooper",year:2018,film:"Nasce uma Estrela",filmYear:2018},{title:"Always Remember Us This Way",artist:"Lady Gaga",year:2018,film:"Nasce uma Estrela",filmYear:2018},{title:"I'll Never Love Again",artist:"Lady Gaga",year:2018,film:"Nasce uma Estrela",filmYear:2018},{title:"Sunflower",artist:"Post Malone & Swae Lee",year:2018,film:"Homem-Aranha no Aranhaverso",filmYear:2018},{title:"All the Stars",artist:"Kendrick Lamar & SZA",year:2018,film:"Pantera Negra",filmYear:2018},{title:"Into the Unknown",artist:"Idina Menzel & AURORA",year:2019,film:"Frozen 2",filmYear:2019},{title:"Spirit",artist:"Beyoncé",year:2019,film:"O Rei Leão",filmYear:2019},{title:"No Time to Die",artist:"Billie Eilish",year:2020,film:"007 - Sem Tempo para Morrer",filmYear:2021},{title:"Dos Oruguitas",artist:"Sebastián Yatra",year:2021,film:"Encanto",filmYear:2021},{title:"We Don't Talk About Bruno",artist:"Carolina Gaitán et al.",year:2021,film:"Encanto",filmYear:2021},{title:"Nobody Like U",artist:"4*TOWN",year:2022,film:"Red: Crescer É uma Fera",filmYear:2022},{title:"Hold My Hand",artist:"Lady Gaga",year:2022,film:"Top Gun: Maverick",filmYear:2022},{title:"Lift Me Up",artist:"Rihanna",year:2022,film:"Pantera Negra: Wakanda para Sempre",filmYear:2022},{title:"Naatu Naatu",artist:"Rahul Sipligunj & Kaala Bhairava",year:2022,film:"RRR: Revolta, Rebelião, Revolução",filmYear:2022},{title:"What Was I Made For?",artist:"Billie Eilish",year:2023,film:"Barbie",filmYear:2023},{title:"I'm Just Ken",artist:"Ryan Gosling",year:2023,film:"Barbie",filmYear:2023},{title:"Dance the Night",artist:"Dua Lipa",year:2023,film:"Barbie",filmYear:2023},{title:"Peaches",artist:"Jack Black",year:2023,film:"Super Mario Bros. O Filme",filmYear:2023},{title:"I Ain't Worried",artist:"OneRepublic",year:2022,film:"Top Gun: Maverick",filmYear:2022},{title:"Heathens",artist:"Twenty One Pilots",year:2016,film:"Esquadrão Suicida",filmYear:2016},{title:"Skyfall",artist:"Adele",year:2012,film:"007 - Operação Skyfall",filmYear:2012},{title:"You Know My Name",artist:"Chris Cornell",year:2006,film:"007 - Cassino Royale",filmYear:2006},{title:"Another Way to Die",artist:"Alicia Keys & Jack White",year:2008,film:"007 - Quantum of Solace",filmYear:2008},{title:"Die Another Day",artist:"Madonna",year:2002,film:"007 - Um Novo Dia para Morrer",filmYear:2002},{title:"The World Is Not Enough",artist:"Garbage",year:1999,film:"007 - O Mundo Não É o Bastante",filmYear:1999},{title:"Tomorrow Never Dies",artist:"Sheryl Crow",year:1997,film:"007 - O Amanhã Nunca Morre",filmYear:1997},{title:"You Could Be Mine",artist:"Guns N' Roses",year:1991,film:"O Exterminador do Futuro 2: O Julgamento Final",filmYear:1991},{title:"Can't Help Falling in Love",artist:"Elvis Presley",year:1961,film:"Feitiço Havaiano",filmYear:1961},{title:"Born to Be Wild",artist:"Steppenwolf",year:1968,film:"Sem Destino",filmYear:1969},{title:"Old Time Rock and Roll",artist:"Bob Seger & The Silver Bullet Band",year:1978,film:"Negócio Arriscado",filmYear:1983},{title:"Twist and Shout",artist:"The Beatles",year:1963,film:"Curtindo a Vida Adoidado",filmYear:1986},{title:"Bohemian Rhapsody",artist:"Queen",year:1975,film:"Quanto Mais Idiota Melhor",filmYear:1992},{title:"Tiny Dancer",artist:"Elton John",year:1971,film:"Quase Famosos",filmYear:2000},{title:"Stuck in the Middle with You",artist:"Stealers Wheel",year:1972,film:"Cães de Aluguel",filmYear:1992},{title:"Misirlou",artist:"Dick Dale & His Del-Tones",year:1962,film:"Pulp Fiction: Tempo de Violência",filmYear:1994},{title:"Son of a Preacher Man",artist:"Dusty Springfield",year:1968,film:"Pulp Fiction: Tempo de Violência",filmYear:1994},{title:"Where Is My Mind?",artist:"Pixies",year:1988,film:"Clube da Luta",filmYear:1999},{title:"Mad World",artist:"Gary Jules",year:2001,film:"Donnie Darko",filmYear:2001},{title:"The Blower's Daughter",artist:"Damien Rice",year:2002,film:"Closer: Perto Demais",filmYear:2004},{title:"Falling Slowly",artist:"Glen Hansard & Markéta Irglová",year:2006,film:"Apenas uma Vez",filmYear:2007},{title:"Jai Ho",artist:"A. R. Rahman, Sukhwinder Singh et al.",year:2008,film:"Quem Quer Ser um Milionário?",filmYear:2008}],'Funk':[{title:'Rap da Felicidade',artist:'Cidinho & Doca',year:1995},{title:'Rap do Silva',artist:'MC Bob Rum',year:1996},{title:'Endereço dos Bailes',artist:'MCs Junior & Leonardo',year:1995},{title:'Princesa',artist:'MC Marcinho',year:1997},{title:'Glamurosa',artist:'MC Marcinho',year:2003},{title:'Garota Nota 100',artist:'MC Marcinho',year:1998},{title:'Nosso Sonho',artist:'Claudinho & Buchecha',year:1996},{title:'Só Love',artist:'Claudinho & Buchecha',year:1998},{title:'Quero Te Encontrar',artist:'Claudinho & Buchecha',year:1997},{title:'Conquista',artist:'Claudinho & Buchecha',year:1997},{title:'Cerol na Mão',artist:'Bonde do Tigrão',year:2001},{title:'O Baile Todo',artist:'Bonde do Tigrão',year:2001},{title:'Tchutchuca',artist:'Bonde do Tigrão',year:2001},{title:'Tapinha',artist:'Bonde do Tigrão',year:2001},{title:'Dança da Motinha',artist:'Tchakabum',year:2002},{title:'Boladona',artist:'Tati Quebra Barraco',year:2004},{title:'Sou Feia Mas Tô na Moda',artist:'Tati Quebra Barraco',year:2004},{title:'Dako é Bom',artist:'Tati Quebra Barraco',year:2004},{title:'Adultério',artist:'Mr. Catra',year:2007},{title:'Uh Papai Chegou',artist:'Mr. Catra',year:2012},{title:'Ela Só Pensa em Beijar',artist:'MC Leozinho',year:2006},{title:'Se Ela Dança Eu Danço',artist:'MC Leozinho',year:2006},{title:'Créu',artist:'MC Créu',year:2007},{title:'Dança do Créu',artist:'MC Créu',year:2007},{title:'Piriguete',artist:'MC Papo',year:2006},{title:'Tô Tranquilão',artist:'MC Sapão',year:2005},{title:'Vou Desafiar Você',artist:'MC Sapão',year:2014},{title:'Parapapá',artist:'MC Papo',year:2007},{title:'Show das Poderosas',artist:'Anitta',year:2013},{title:'Meiga e Abusada',artist:'Anitta',year:2012},{title:'Vai Malandra',artist:'Anitta',year:2017},{title:'Movimento da Sanfoninha',artist:'Anitta',year:2014},{title:'Na Batida',artist:'Anitta',year:2014},{title:'Beijinho no Ombro',artist:'Valesca Popozuda',year:2013},{title:'Eu Sou a Diva Que Você Quer Copiar',artist:'Valesca Popozuda',year:2014},{title:'Agora Eu Tô Solteira',artist:'Gaiola das Popozudas',year:2005},{title:'Late Que Eu Tô Passando',artist:'Gaiola das Popozudas',year:2007},{title:'Bum Bum Tam Tam',artist:'MC Fioti',year:2017},{title:'Deu Onda',artist:'MC G15',year:2016},{title:'Olha a Explosão',artist:'MC Kevinho',year:2016},{title:'Rabiola',artist:'MC Kevinho',year:2017},{title:'O Grave Bater',artist:'MC Kevinho',year:2017},{title:'Cheia de Marra',artist:'MC Livinho',year:2016},{title:'Fazer Falta',artist:'MC Livinho',year:2017},{title:'Tudo de Bom',artist:'MC Livinho',year:2019},{title:'Amor de Verdade',artist:'MC Kekel & MC Rita',year:2018},{title:'Namorar Pra Quê?',artist:'MC Kekel',year:2016},{title:'Partiu',artist:'MC Kekel',year:2016},{title:'Oh Nanana',artist:'Bonde R300',year:2017},{title:'Surtada',artist:'Dadá Boladão, Tati Zaqui & OIK',year:2019},{title:'Parado no Bailão',artist:'MC L da Vinte & MC Gury',year:2018},{title:'Dentro do Carro',artist:'MC Kevin o Chris',year:2018},{title:'Evoluiu',artist:'MC Kevin o Chris',year:2019},{title:'Ela É do Tipo',artist:'MC Kevin o Chris',year:2019},{title:'Tipo Gin',artist:'MC Kevin o Chris',year:2020},{title:'Vamos Pra Gaiola',artist:'MC Kevin o Chris & FP do Trem Bala',year:2019},{title:'Sentadão',artist:'Pedro Sampaio, Felipe Original & JS o Mão de Ouro',year:2019},{title:'Galopa',artist:'Pedro Sampaio',year:2021},{title:'Dançarina',artist:'Pedro Sampaio',year:2022},{title:'No Chão Novinha',artist:'Anitta & Pedro Sampaio',year:2021},{title:'Atenção',artist:'Pedro Sampaio & Luísa Sonza',year:2021},{title:'Combatchy',artist:'Anitta, Lexa, Luísa Sonza & MC Rebecca',year:2019},{title:'Sapequinha',artist:'Lexa',year:2018},{title:'Chama Ela',artist:'Lexa feat. Pedro Sampaio',year:2019},{title:'Provocar',artist:'Lexa feat. Gloria Groove',year:2019},{title:'Só Depois do Carnaval',artist:'Lexa',year:2019},{title:'Que Tiro Foi Esse',artist:'Jojo Maronttinni',year:2017},{title:'Verdinha',artist:'Ludmilla',year:2019},{title:'Hoje',artist:'Ludmilla',year:2014},{title:'24 Horas por Dia',artist:'Ludmilla',year:2015},{title:'Cheguei',artist:'Ludmilla',year:2017},{title:'Din Din Din',artist:'Ludmilla feat. MC Pupio & MC Doguinha',year:2018},{title:'Favela Chegou',artist:'Ludmilla & Anitta',year:2019},{title:'Vai Embrazando',artist:'MC Zaac',year:2016},{title:'Bumbum Granada',artist:'MCs Zaac & Jerry',year:2016},{title:'Vai Vai Vai',artist:'MC Davi',year:2017},{title:'Pra Inveja É Tchau',artist:'MC Davi',year:2018},{title:'O Verão Está Chegando',artist:'MC Davi',year:2018},{title:'Tumbalatum',artist:'MC Kevinho',year:2016},{title:'Encaixa',artist:'MC Kevinho feat. Léo Santana',year:2017},{title:'Papum',artist:'MC Kevinho',year:2018},{title:'Terremoto',artist:'Anitta & Kevinho',year:2019},{title:'Oh Quem Voltou',artist:'MC Maneirinho',year:2018},{title:'Baile de Favela',artist:'MC João',year:2015},{title:'Roça Roça',artist:'MC Brinquedo',year:2015},{title:'Roça Roça 2',artist:'MC Brinquedo',year:2016},{title:'Dom Dom Dom',artist:'MC Pedrinho',year:2014},{title:'Hit do Verão',artist:'MC Davi & MC Pedrinho',year:2017},{title:'Só Quer Vrau',artist:'MC MM',year:2018},{title:'Joga o Bum Bum Tam Tam',artist:'MC Fioti',year:2017},{title:'Vai Toma',artist:'MC Pikachu',year:2015},{title:'Lá no Meu Barraco',artist:'MC Pikachu',year:2015},{title:'Tropa do R7',artist:'MC Rodolfinho',year:2014},{title:'Como É Bom Ser Vida Loka',artist:'MC Rodolfinho',year:2014},{title:'Plaquê de 100',artist:'MC Guimê',year:2012},{title:'Na Pista Eu Arraso',artist:'MC Guimê',year:2013},{title:'País do Futebol',artist:'MC Guimê feat. Emicida',year:2013},{title:'Tá Patrão',artist:'MC Guimê',year:2011},{title:'O Bonde Passou',artist:'MC Gui',year:2013},{title:'Sonhar',artist:'MC Gui',year:2014},{title:'Ela Quer',artist:'MC Gui',year:2014},{title:'Tá Tranquilo, Tá Favorável',artist:'MC Bin Laden',year:2015},{title:'Controllah',artist:'MC Bin Laden',year:2016},{title:'Bololo Haha',artist:'MC Bin Laden',year:2014},{title:'Novinha Pode Pá',artist:'MC Don Juan',year:2016},{title:'Amar, Amei',artist:'MC Don Juan',year:2017},{title:'Oh Novinha Eu Quero Te Ver Contente',artist:'MC Don Juan',year:2017},{title:'Cavalo de Troia',artist:'MC Kevin',year:2019},{title:'Pra Inveja É Tchau',artist:'MC Kevin',year:2019},{title:'Veracruz',artist:'MC Kevin',year:2021},{title:'Praia do Rosa',artist:'MC Kevin',year:2021},{title:'Revoada',artist:'MC Kevin',year:2021},{title:'Set dos Casados',artist:'MC Kevin',year:2020},{title:'Tubarão Te Amo',artist:'DJ LK da Escócia, Tchakabum & MC Ryan SP',year:2022},{title:'Casei com a Putaria',artist:'MC Ryan SP, Love Funk & Kotim',year:2022},{title:'Felina',artist:'WIU & MC Ryan SP',year:2022},{title:'Namora Aí',artist:'MC Ryan SP, MC Daniel & Kotim',year:2023},{title:'Dentro da Hilux',artist:'Luan Pereira, MC Daniel & MC Ryan SP',year:2023},{title:'Love Absurdo',artist:'Mari Fernandez, MC Ryan SP & MC Daniel',year:2023},{title:'Tá OK',artist:'DENNIS & Kevin O Chris',year:2023},{title:'Joga Pra Lua',artist:'Anitta, DENNIS & Pedro Sampaio',year:2023},{title:'Ram Tchum',artist:'Ana Castela, DENNIS & MC GW',year:2024},{title:'Casca de Bala',artist:'Thullio Milionário',year:2024},{title:'Oh Garota Eu Quero Você Só Pra Mim',artist:'Oruam, Zé Felipe & MC Tuto',year:2025},{title:'Barbie',artist:'MC Tuto',year:2024},{title:'Gosta de Rua',artist:'Felipe Ret, Caio Luccas & Dallass',year:2024},{title:'Posso Até Não Te Dar Flores',artist:'DJ Japa NK, MC Meno K & MC Ryan SP',year:2024},{title:'Descer pra BC',artist:'Brenno & Matheus, DJ Ari SL',year:2024},{title:'Mãe Solteira',artist:'MC Davi, MC Pedrinho & MC Don Juan',year:2024},{title:'Set dos Casados 2',artist:'MC Davi, MC Don Juan, MC Hariel & MC Ryan SP',year:2022},{title:'Ilusão (Cracolândia)',artist:'MC Hariel, MC Ryan SP, MC Davi & Salvador da Rima',year:2020},{title:'Maçã Verde',artist:'MC Hariel',year:2019},{title:'Cupido',artist:'MC Hariel',year:2020},{title:'Até o Sol Raiar',artist:'MC Hariel',year:2021},{title:'Lei do Retorno',artist:'MC Hariel & MC Don Juan',year:2017},{title:'A Dança',artist:'MC Hariel',year:2018},{title:'Mundão Girou',artist:'MC Hariel',year:2020},{title:'Invicto',artist:'MC IG',year:2023},{title:'3 Dias Virado',artist:'MC IG',year:2023},{title:'Goodnight Menina',artist:'MC IG',year:2023},{title:'Let\'s Go 4',artist:'MC IG, MC PH, MC Ryan SP & MC Luki',year:2023},{title:'Dubai',artist:'MC PH',year:2023},{title:'Tenho Que Me Decidir',artist:'MC PH',year:2023},{title:'M4',artist:'Teto feat. Matuê',year:2021},{title:'Quer Voar',artist:'Matuê',year:2021},{title:'Kenny G',artist:'Matuê',year:2020},{title:'Máquina do Tempo',artist:'Matuê',year:2020},{title:'Anos Luz',artist:'Matuê',year:2017},{title:'Vampiro',artist:'Matuê, Teto & WIU',year:2022},{title:'Coração de Gelo',artist:'WIU',year:2022}],'Sertanejo':[{title:'Evidências',artist:'Chitãozinho & Xororó',year:1990},{title:'Fio de Cabelo',artist:'Chitãozinho & Xororó',year:1982},{title:'Sinônimos',artist:'Chitãozinho & Xororó',year:2004},{title:'Nuvem de Lágrimas',artist:'Chitãozinho & Xororó',year:1989},{title:'Página de Amigos',artist:'Chitãozinho & Xororó',year:1995},{title:'Alô',artist:'Chitãozinho & Xororó',year:1999},{title:'É o Amor',artist:'Zezé Di Camargo & Luciano',year:1991},{title:'Você Vai Ver',artist:'Zezé Di Camargo & Luciano',year:1994},{title:'No Dia em Que Eu Saí de Casa',artist:'Zezé Di Camargo & Luciano',year:1995},{title:'Dou a Vida por um Beijo',artist:'Zezé Di Camargo & Luciano',year:1998},{title:'Pão de Mel',artist:'Zezé Di Camargo & Luciano',year:1995},{title:'Dois Corações e Uma História',artist:'Zezé Di Camargo & Luciano',year:1998},{title:'Pense em Mim',artist:'Leandro & Leonardo',year:1990},{title:'Entre Tapas e Beijos',artist:'Leandro & Leonardo',year:1989},{title:'Talismã',artist:'Leandro & Leonardo',year:1990},{title:'Não Aprendi Dizer Adeus',artist:'Leandro & Leonardo',year:1991},{title:'Desculpe, Mas Eu Vou Chorar',artist:'Leandro & Leonardo',year:1990},{title:'Temporal de Amor',artist:'Leandro & Leonardo',year:1992},{title:'Dormi na Praça',artist:'Bruno & Marrone',year:2000},{title:'Choram as Rosas',artist:'Bruno & Marrone',year:2005},{title:'Por um Minuto',artist:'Bruno & Marrone',year:2000},{title:'Vida Vazia',artist:'Bruno & Marrone',year:2001},{title:'Boate Azul',artist:'Bruno & Marrone',year:2002},{title:'Quer Casar Comigo?',artist:'Bruno & Marrone',year:2003},{title:'Borboletas',artist:'Victor & Leo',year:2008},{title:'Fada',artist:'Victor & Leo',year:2004},{title:'Tem Que Ser Você',artist:'Victor & Leo',year:2008},{title:'Deus e Eu no Sertão',artist:'Victor & Leo',year:2009},{title:'Meteoro',artist:'Luan Santana',year:2009},{title:'Te Esperando',artist:'Luan Santana',year:2013},{title:'Sinais',artist:'Luan Santana',year:2010},{title:'Escreve Aí',artist:'Luan Santana',year:2015},{title:'Infiel',artist:'Marília Mendonça',year:2015},{title:'Todo Mundo Vai Sofrer',artist:'Marília Mendonça',year:2019},{title:'Eu Sei de Cor',artist:'Marília Mendonça',year:2016},{title:'Supera',artist:'Marília Mendonça',year:2019},{title:'De Quem É a Culpa?',artist:'Marília Mendonça',year:2017},{title:'Leão',artist:'Marília Mendonça',year:2022},{title:'10%',artist:'Maiara & Maraisa',year:2016},{title:'Medo Bobo',artist:'Maiara & Maraisa',year:2016},{title:'Sorte Que Cê Beija Bem',artist:'Maiara & Maraisa',year:2017},{title:'A Culpa É Nossa',artist:'Maiara & Maraisa',year:2023},{title:'Amo Noite e Dia',artist:'Jorge & Mateus',year:2010},{title:'Pode Chorar',artist:'Jorge & Mateus',year:2007},{title:'Propaganda',artist:'Jorge & Mateus',year:2018},{title:'Sosseguei',artist:'Jorge & Mateus',year:2015},{title:'A Hora É Agora',artist:'Jorge & Mateus',year:2012},{title:'Voa Beija-Flor',artist:'Jorge & Mateus',year:2009},{title:'Balada',artist:'Gusttavo Lima',year:2011},{title:'Apelido Carinhoso',artist:'Gusttavo Lima',year:2017},{title:'Inventor dos Amores',artist:'Gusttavo Lima',year:2010},{title:'Bloqueado',artist:'Gusttavo Lima',year:2021},{title:'Ficha Limpa',artist:'Gusttavo Lima',year:2021},{title:'Largado às Traças',artist:'Zé Neto & Cristiano',year:2018},{title:'Notificação Preferida',artist:'Zé Neto & Cristiano',year:2018},{title:'Seu Polícia',artist:'Zé Neto & Cristiano',year:2015},{title:'Barulho do Foguete',artist:'Zé Neto & Cristiano',year:2023},{title:'Camaro Amarelo',artist:'Munhoz & Mariano',year:2012},{title:'Pantera Cor de Rosa',artist:'Munhoz & Mariano',year:2013},{title:'Telefone Mudo',artist:'Trio Parada Dura',year:1983},{title:'As Andorinhas',artist:'Trio Parada Dura',year:1985},{title:'Blusa Vermelha',artist:'Trio Parada Dura',year:1980},{title:'Ainda Ontem Chorei de Saudade',artist:'João Mineiro & Marciano',year:1988},{title:'Seu Amor Ainda É Tudo',artist:'João Mineiro & Marciano',year:1986},{title:'Boate Azul',artist:'Joaquim & Manuel',year:1985},{title:'Estrada da Vida',artist:'Milionário & José Rico',year:1977},{title:'Vontade Dividida',artist:'Milionário & José Rico',year:1991},{title:'Decida',artist:'Milionário & José Rico',year:1991},{title:'Sonhei com Você',artist:'Milionário & José Rico',year:1980},{title:'Panela Velha',artist:'Sérgio Reis',year:1983},{title:'Menino da Porteira',artist:'Sérgio Reis',year:1973},{title:'Chalana',artist:'Sérgio Reis',year:1975},{title:'Tocando em Frente',artist:'Almir Sater & Renato Teixeira',year:1990},{title:'Chalana',artist:'Almir Sater',year:1991},{title:'Trem do Pantanal',artist:'Almir Sater',year:1982},{title:'Cabecinha no Ombro',artist:'Almir Sater',year:1996},{title:'Romaria',artist:'Renato Teixeira',year:1977},{title:'Frete',artist:'Renato Teixeira',year:1981},{title:'Saudade da Minha Terra',artist:'Belmonte & Amaraí',year:1966},{title:'Chico Mineiro',artist:'Tonico & Tinoco',year:1946},{title:'Tristeza do Jeca',artist:'Tonico & Tinoco',year:1958},{title:'Moreninha Linda',artist:'Tonico & Tinoco',year:1951},{title:'Majestade, o Sabiá',artist:'Roberta Miranda',year:1985},{title:'Vá com Deus',artist:'Roberta Miranda',year:1987},{title:'São Tantas Coisas',artist:'Roberta Miranda',year:1992},{title:'Ainda Ontem Chorei de Saudade',artist:'Amado Batista',year:1985},{title:'Princesa',artist:'Amado Batista',year:1984},{title:'Secretária',artist:'Amado Batista',year:1984},{title:'Convite de Casamento',artist:'Gian & Giovani',year:1998},{title:'O Grande Amor da Minha Vida',artist:'Gian & Giovani',year:1998},{title:'Nem Dormindo Consigo Te Esquecer',artist:'Gian & Giovani',year:1998},{title:'Frio da Madrugada',artist:'Rionegro & Solimões',year:1998},{title:'Peão Apaixonado',artist:'Rionegro & Solimões',year:1997},{title:'De São Paulo a Belém',artist:'Rionegro & Solimões',year:1999},{title:'Tentei Te Esquecer',artist:'Matogrosso & Mathias',year:2003},{title:'24 Horas de Amor',artist:'Matogrosso & Mathias',year:1988},{title:'Boate Azul',artist:'Matogrosso & Mathias',year:1985},{title:'Maus Bocados',artist:'Cristiano Araújo',year:2013},{title:'Caso Indefinido',artist:'Cristiano Araújo',year:2013},{title:'É com Ela Que Eu Estou',artist:'Cristiano Araújo',year:2014},{title:'Cuida Bem Dela',artist:'Henrique & Juliano',year:2014},{title:'Na Hora da Raiva',artist:'Henrique & Juliano',year:2015},{title:'Liberdade Provisória',artist:'Henrique & Juliano',year:2019},{title:'Vidinha de Balada',artist:'Henrique & Juliano',year:2017},{title:'Até Você Voltar',artist:'Henrique & Juliano',year:2014},{title:'Flor e o Beija-Flor',artist:'Henrique & Juliano feat. Marília Mendonça',year:2015},{title:'Nocaute',artist:'Jorge & Mateus',year:2014},{title:'Cê Que Sabe',artist:'Cristiano Araújo',year:2014},{title:'Aquele 1%',artist:'Marcos & Belutti feat. Wesley Safadão',year:2015},{title:'Domingo de Manhã',artist:'Marcos & Belutti',year:2014},{title:'Eu Era',artist:'Marcos & Belutti',year:2017},{title:'Suíte 14',artist:'Henrique & Diego feat. MC Guimê',year:2014},{title:'Senha do Celular',artist:'Henrique & Diego',year:2017},{title:'Raspão',artist:'Henrique & Diego feat. Simone & Simaria',year:2017},{title:'Regime Fechado',artist:'Simone & Simaria',year:2017},{title:'Meu Violão e o Nosso Cachorro',artist:'Simone & Simaria',year:2015},{title:'126 Cabides',artist:'Simone & Simaria',year:2016},{title:'Loka',artist:'Simone & Simaria feat. Anitta',year:2017},{title:'50 Reais',artist:'Naiara Azevedo feat. Maiara & Maraisa',year:2016},{title:'Ex do Seu Atual',artist:'Naiara Azevedo',year:2017},{title:'Palhaço',artist:'Naiara Azevedo & Ana Castela',year:2023},{title:'Batom de Cereja',artist:'Israel & Rodolffo',year:2021},{title:'Marca Evidente',artist:'Israel & Rodolffo feat. Jorge & Mateus',year:2010},{title:'Coração de Isca',artist:'Bruno & Marrone',year:2022},{title:'Facas',artist:'Diego & Victor Hugo feat. Bruno & Marrone',year:2020},{title:'Desbloqueado',artist:'Diego & Victor Hugo',year:2021},{title:'Tubarões',artist:'Diego & Victor Hugo',year:2025},{title:'Erro Gostoso',artist:'Simone Mendes',year:2023},{title:'Dois Tristes',artist:'Simone Mendes',year:2024},{title:'Daqui Pra Sempre',artist:'Manu Bahtidão & Simone Mendes',year:2023},{title:'Nosso Quadro',artist:'Ana Castela',year:2023},{title:'Solteiro Forçado',artist:'Ana Castela',year:2023},{title:'Duas Três',artist:'Guilherme & Benuto, Ana Castela & Adriano Rhod',year:2023},{title:'Haja Colírio',artist:'Guilherme & Benuto feat. Hugo & Guilherme',year:2022},{title:'Pulei na Piscina',artist:'Guilherme & Benuto',year:2020},{title:'Mal Feito',artist:'Hugo & Guilherme feat. Marília Mendonça',year:2022},{title:'Mágica',artist:'Hugo & Guilherme',year:2023},{title:'Morena',artist:'Luan Santana',year:2021},{title:'Abalo Emocional',artist:'Luan Santana',year:2022},{title:'Coração Cigano',artist:'Luan Santana feat. Luísa Sonza',year:2022},{title:'Traumatizei',artist:'Henrique & Juliano',year:2023},{title:'Arranhão',artist:'Henrique & Juliano',year:2021},{title:'A Maior Saudade',artist:'Henrique & Juliano',year:2021},{title:'Seu Brilho Sumiu',artist:'Israel & Rodolffo feat. Mari Fernandez',year:2023},{title:'Bombonzinho',artist:'Israel & Rodolffo feat. Ana Castela',year:2022},{title:'Oi Balde',artist:'Zé Neto & Cristiano',year:2023},{title:'Pátio do Posto',artist:'Zé Neto & Cristiano',year:2024},{title:'Desejo Imortal',artist:'Gusttavo Lima',year:2023},{title:'Canudinho',artist:'Gusttavo Lima & Ana Castela',year:2023},{title:'Última Saudade',artist:'Henrique & Juliano',year:2024}],'Pagode & Samba':[{title:'Cheia de Manias',artist:'Raça Negra',year:1992},{title:'É Tarde Demais',artist:'Raça Negra',year:1995},{title:'Cigana',artist:'Raça Negra',year:1992},{title:'Me Leva Junto com Você',artist:'Raça Negra',year:1994},{title:'Deixa Acontecer',artist:'Grupo Revelação',year:2002},{title:'Tá Escrito',artist:'Grupo Revelação',year:2009},{title:'Coração Radiante',artist:'Grupo Revelação',year:1999},{title:'Grades do Coração',artist:'Grupo Revelação',year:2002},{title:'Depois do Prazer',artist:'Só Pra Contrariar',year:1997},{title:'Essa Tal Liberdade',artist:'Só Pra Contrariar',year:1994},{title:'Que Se Chama Amor',artist:'Só Pra Contrariar',year:1993},{title:'Domingo',artist:'Só Pra Contrariar',year:1993},{title:'Cilada',artist:'Molejo',year:1995},{title:'Brincadeira de Criança',artist:'Molejo',year:1997},{title:'Dança da Vassoura',artist:'Molejo',year:1997},{title:'Samba Diferente',artist:'Molejo',year:1998},{title:'Me Apaixonei pela Pessoa Errada',artist:'Exaltasamba',year:1999},{title:'Livre Pra Voar',artist:'Exaltasamba',year:2007},{title:'Telegrama',artist:'Exaltasamba',year:2003},{title:'Tá Vendo Aquela Lua',artist:'Exaltasamba',year:2010},{title:'Temporal',artist:'Art Popular',year:1996},{title:'Pimpolho',artist:'Art Popular',year:1996},{title:'Agamamou',artist:'Art Popular',year:1995},{title:'Fricote',artist:'Art Popular',year:1997},{title:'Derê',artist:'Soweto',year:1998},{title:'Farol das Estrelas',artist:'Soweto',year:1999},{title:'Tempo de Aprender',artist:'Soweto',year:1999},{title:'Refém do Coração',artist:'Soweto',year:1999},{title:'Perfume',artist:'Belo',year:2001},{title:'Tua Boca',artist:'Belo',year:2001},{title:'Desafio',artist:'Belo',year:2000},{title:'Intriga da Oposição',artist:'Belo',year:2006},{title:'Não Deixe o Samba Morrer',artist:'Alcione',year:1975},{title:'Você Me Vira a Cabeça',artist:'Alcione',year:2002},{title:'Estranha Loucura',artist:'Alcione',year:1987},{title:'Meu Ébano',artist:'Alcione',year:2004},{title:'Coisinha do Pai',artist:'Beth Carvalho',year:1979},{title:'Vou Festejar',artist:'Beth Carvalho',year:1978},{title:'Andança',artist:'Beth Carvalho',year:1968},{title:'Camarão Que Dorme a Onda Leva',artist:'Beth Carvalho',year:1981},{title:'Trem das Onze',artist:'Demônios da Garoa',year:1964},{title:'Saudosa Maloca',artist:'Demônios da Garoa',year:1955},{title:'Iracema',artist:'Demônios da Garoa',year:1956},{title:'Samba do Arnesto',artist:'Demônios da Garoa',year:1955},{title:'O Show Tem Que Continuar',artist:'Fundo de Quintal',year:1988},{title:'A Amizade',artist:'Fundo de Quintal',year:1991},{title:'Lucidez',artist:'Fundo de Quintal',year:1988},{title:'Do Fundo do Nosso Quintal',artist:'Fundo de Quintal',year:1986},{title:'Deixa a Vida Me Levar',artist:'Zeca Pagodinho',year:2002},{title:'Verdade',artist:'Zeca Pagodinho',year:1996},{title:'Caviar',artist:'Zeca Pagodinho',year:2002},{title:'Faixa Amarela',artist:'Zeca Pagodinho',year:1997},{title:'Maneiras',artist:'Zeca Pagodinho',year:1987},{title:'Judia de Mim',artist:'Zeca Pagodinho',year:1985},{title:'Vai Vadiar',artist:'Zeca Pagodinho',year:1998},{title:'Ogum',artist:'Zeca Pagodinho',year:2008},{title:'O Mundo É um Moinho',artist:'Cartola',year:1976},{title:'As Rosas Não Falam',artist:'Cartola',year:1976},{title:'Preciso Me Encontrar',artist:'Cartola',year:1976},{title:'Alvorada',artist:'Cartola',year:1974},{title:'Aquarela Brasileira',artist:'Martinho da Vila',year:1975},{title:'Casa de Bamba',artist:'Martinho da Vila',year:1969},{title:'Disritmia',artist:'Martinho da Vila',year:1974},{title:'Mulheres',artist:'Martinho da Vila',year:1995},{title:'Canta, Canta, Minha Gente',artist:'Martinho da Vila',year:1974},{title:'Ex-Amor',artist:'Martinho da Vila',year:1984},{title:'Madalena do Jucu',artist:'Martinho da Vila',year:1989},{title:'Devagar, Devagarinho',artist:'Martinho da Vila',year:1995},{title:'Argumento',artist:'Paulinho da Viola',year:1975},{title:'Foi um Rio Que Passou em Minha Vida',artist:'Paulinho da Viola',year:1970},{title:'Pecado Capital',artist:'Paulinho da Viola',year:1975},{title:'Dança da Solidão',artist:'Paulinho da Viola',year:1972},{title:'Coração Leviano',artist:'Paulinho da Viola',year:1978},{title:'Sinal Fechado',artist:'Paulinho da Viola',year:1969},{title:'Timoneiro',artist:'Paulinho da Viola',year:1996},{title:'Para Ver as Meninas',artist:'Paulinho da Viola',year:1971},{title:'O Mar Serenou',artist:'Clara Nunes',year:1975},{title:'Conto de Areia',artist:'Clara Nunes',year:1974},{title:'Canto das Três Raças',artist:'Clara Nunes',year:1976},{title:'Morena de Angola',artist:'Clara Nunes',year:1980},{title:'Você Passa, Eu Acho Graça',artist:'Clara Nunes',year:1968},{title:'Feira de Mangaio',artist:'Clara Nunes',year:1979},{title:'Portela na Avenida',artist:'Clara Nunes',year:1981},{title:'Tristeza Pé no Chão',artist:'Clara Nunes',year:1973},{title:'Retalhos de Cetim',artist:'Benito di Paula',year:1973},{title:'Charlie Brown',artist:'Benito di Paula',year:1975},{title:'Mulher Brasileira',artist:'Benito di Paula',year:1976},{title:'Vai Ficar na Saudade',artist:'Benito di Paula',year:1977},{title:'O Telefone Tocou Novamente',artist:'Jorge Ben Jor',year:1970},{title:'Taj Mahal',artist:'Jorge Ben Jor',year:1972},{title:'Que Maravilha',artist:'Jorge Ben Jor & Toquinho',year:1969},{title:'País Tropical',artist:'Jorge Ben Jor',year:1969},{title:'Sorriso Negro',artist:'Dona Ivone Lara',year:1981},{title:'Alguém Me Avisou',artist:'Dona Ivone Lara',year:1982},{title:'Sonho Meu',artist:'Dona Ivone Lara & Délcio Carvalho',year:1978},{title:'Acreditar',artist:'Dona Ivone Lara',year:1976},{title:'Coisa de Pele',artist:'Jorge Aragão',year:1986},{title:'Malandro',artist:'Jorge Aragão',year:1976},{title:'Eu e Você Sempre',artist:'Jorge Aragão',year:2000},{title:'Identidade',artist:'Jorge Aragão',year:1992},{title:'Vou Festejar',artist:'Jorge Aragão',year:1999},{title:'Do Fundo do Nosso Quintal',artist:'Jorge Aragão',year:1986},{title:'Lucidez',artist:'Jorge Aragão',year:1992},{title:'Enredo do Meu Samba',artist:'Jorge Aragão',year:1981},{title:'Depois do Temporal',artist:'Belo',year:2002},{title:'Reinventar',artist:'Belo',year:2009},{title:'Farol das Estrelas',artist:'Belo',year:2000},{title:'Pra Ver o Sol Brilhar',artist:'Belo',year:2008},{title:'Recado à Minha Amada',artist:'Katinguelê',year:1996},{title:'Inaraí',artist:'Katinguelê',year:1998},{title:'Lua Vai',artist:'Katinguelê',year:1996},{title:'No Compasso do Criador',artist:'Katinguelê',year:1997},{title:'Marrom Bombom',artist:'Os Morenos',year:1995},{title:'Mina de Fé',artist:'Os Morenos',year:1996},{title:'Tá a Fim de Sambar',artist:'Os Morenos',year:1997},{title:'Amor Singular',artist:'Os Morenos',year:1998},{title:'Gamei',artist:'Exaltasamba',year:1998},{title:'Megastar',artist:'Exaltasamba',year:2000},{title:'Eu Me Apaixonei pela Pessoa Errada',artist:'Exaltasamba',year:1999},{title:'Pé na Areia',artist:'Diogo Nogueira',year:2014},{title:'Alma Boêmia',artist:'Diogo Nogueira',year:2016},{title:'Clareou',artist:'Diogo Nogueira',year:2015},{title:'Sou Eu',artist:'Diogo Nogueira',year:2010},{title:'Tá Perdoado',artist:'Maria Rita',year:2007},{title:'Num Corpo Só',artist:'Maria Rita',year:2007},{title:'Cara Valente',artist:'Maria Rita',year:2003},{title:'Encontros e Despedidas',artist:'Maria Rita',year:2003},{title:'Meu Lugar',artist:'Arlindo Cruz',year:2007},{title:'O Bem',artist:'Arlindo Cruz',year:2011},{title:'Será Que É Amor',artist:'Arlindo Cruz',year:2009},{title:'O Que É o Amor',artist:'Arlindo Cruz',year:2007},{title:'Camisa 10',artist:'Turma do Pagode',year:2010},{title:'Lancinho',artist:'Turma do Pagode',year:2012},{title:'Deixa em Off',artist:'Turma do Pagode',year:2016},{title:'Cobertor de Orelha',artist:'Turma do Pagode',year:2010},{title:'Melhor Eu Ir',artist:'Péricles',year:2015},{title:'Até Que Durou',artist:'Péricles',year:2018},{title:'Final de Tarde',artist:'Péricles',year:2012},{title:'Se Eu Largar o Freio',artist:'Péricles',year:2015},{title:'Até Que Durou',artist:'Ferrugem',year:2018},{title:'Pirata e Tesouro',artist:'Ferrugem',year:2017},{title:'Eu Juro',artist:'Ferrugem',year:2018},{title:'É Natural',artist:'Ferrugem',year:2019},{title:'P do Pecado',artist:'Menos é Mais & Simone Mendes',year:2025},{title:'Lapada Dela',artist:'Menos é Mais & Matheus Fernandes',year:2023},{title:'Adorei',artist:'Menos é Mais',year:2020},{title:'Vai Me Dando Corda',artist:'Menos é Mais',year:2022},{title:'Insensato Destino',artist:'Almir Guineto',year:1986},{title:'Conselho',artist:'Almir Guineto',year:1986},{title:'Deixa Clarear',artist:'Grupo Revelação',year:2003}],'MPB Brasileira':[{title:'Arrastão',artist:'Elis Regina',year:1965},{title:'Disparada',artist:'Jair Rodrigues',year:1966},{title:'A Banda',artist:'Chico Buarque',year:1966},{title:'Roda Viva',artist:'Chico Buarque',year:1967},{title:'Carolina',artist:'Chico Buarque',year:1967},{title:'Apesar de Você',artist:'Chico Buarque',year:1970},{title:'Construção',artist:'Chico Buarque',year:1971},{title:'Cotidiano',artist:'Chico Buarque',year:1971},{title:'Cálice',artist:'Chico Buarque & Milton Nascimento',year:1978},{title:'João e Maria',artist:'Chico Buarque',year:1977},{title:'O Que Será (À Flor da Pele)',artist:'Chico Buarque',year:1976},{title:'Geni e o Zepelim',artist:'Chico Buarque',year:1978},{title:'Alegria, Alegria',artist:'Caetano Veloso',year:1967},{title:'Tropicália',artist:'Caetano Veloso',year:1968},{title:'Você Não Entende Nada',artist:'Caetano Veloso',year:1972},{title:'O Leãozinho',artist:'Caetano Veloso',year:1977},{title:'Sampa',artist:'Caetano Veloso',year:1978},{title:'Você é Linda',artist:'Caetano Veloso',year:1983},{title:'Sozinho',artist:'Caetano Veloso',year:1998},{title:'Odara',artist:'Caetano Veloso',year:1977},{title:'Domingo no Parque',artist:'Gilberto Gil',year:1967},{title:'Aquele Abraço',artist:'Gilberto Gil',year:1969},{title:'Andar com Fé',artist:'Gilberto Gil',year:1982},{title:'Drão',artist:'Gilberto Gil',year:1982},{title:'Palco',artist:'Gilberto Gil',year:1981},{title:'Refazenda',artist:'Gilberto Gil',year:1975},{title:'Expresso 2222',artist:'Gilberto Gil',year:1972},{title:'Travessia',artist:'Milton Nascimento',year:1967},{title:'Cais',artist:'Milton Nascimento',year:1972},{title:'Clube da Esquina Nº 2',artist:'Milton Nascimento',year:1972},{title:'Nada Será Como Antes',artist:'Milton Nascimento',year:1972},{title:'Maria Maria',artist:'Milton Nascimento',year:1978},{title:'Canção da América',artist:'Milton Nascimento',year:1980},{title:'Coração de Estudante',artist:'Milton Nascimento',year:1983},{title:'Nos Bailes da Vida',artist:'Milton Nascimento',year:1981},{title:'Caçador de Mim',artist:'Milton Nascimento',year:1981},{title:'Como Nossos Pais',artist:'Elis Regina',year:1976},{title:'Águas de Março',artist:'Elis Regina & Tom Jobim',year:1974},{title:'Madalena',artist:'Elis Regina',year:1971},{title:'O Bêbado e a Equilibrista',artist:'Elis Regina',year:1979},{title:'Alô Alô Marciano',artist:'Elis Regina',year:1980},{title:'Romaria',artist:'Elis Regina',year:1977},{title:'Atrás da Porta',artist:'Elis Regina',year:1972},{title:'Casa no Campo',artist:'Elis Regina',year:1971},{title:'Baby',artist:'Gal Costa',year:1969},{title:'Divino Maravilhoso',artist:'Gal Costa',year:1969},{title:'Meu Nome é Gal',artist:'Gal Costa',year:1969},{title:'Vapor Barato',artist:'Gal Costa',year:1971},{title:'Chuva de Prata',artist:'Gal Costa',year:1984},{title:'Um Dia de Domingo',artist:'Gal Costa & Tim Maia',year:1985},{title:'Explode Coração',artist:'Maria Bethânia',year:1978},{title:'Reconvexo',artist:'Maria Bethânia',year:1989},{title:'Olhos nos Olhos',artist:'Maria Bethânia',year:1979},{title:'Brincar de Viver',artist:'Maria Bethânia',year:1983},{title:'Apenas um Rapaz Latino-Americano',artist:'Belchior',year:1976},{title:'Como Nossos Pais',artist:'Belchior',year:1976},{title:'Velha Roupa Colorida',artist:'Belchior',year:1976},{title:'Paralelas',artist:'Belchior',year:1975},{title:'Medo de Avião',artist:'Belchior',year:1979},{title:'Alucinação',artist:'Belchior',year:1976},{title:'Oceano',artist:'Djavan',year:1989},{title:'Flor de Lis',artist:'Djavan',year:1976},{title:'Sina',artist:'Djavan',year:1982},{title:'Samurai',artist:'Djavan',year:1982},{title:'Se...',artist:'Djavan',year:1992},{title:'Eu Te Devoro',artist:'Djavan',year:1998},{title:'Açaí',artist:'Djavan',year:1982},{title:'Lilás',artist:'Djavan',year:1984},{title:'Anunciação',artist:'Alceu Valença',year:1983},{title:'Tropicana',artist:'Alceu Valença',year:1982},{title:'Como Dois Animais',artist:'Alceu Valença',year:1982},{title:'La Belle de Jour',artist:'Alceu Valença',year:1992},{title:'Coração Bobo',artist:'Alceu Valença',year:1980},{title:'Chão de Giz',artist:'Zé Ramalho',year:1978},{title:'Avôhai',artist:'Zé Ramalho',year:1978},{title:'Admirável Gado Novo',artist:'Zé Ramalho',year:1979},{title:'Frevo Mulher',artist:'Zé Ramalho',year:1979},{title:'Entre a Serpente e a Estrela',artist:'Zé Ramalho',year:1992},{title:'Canteiros',artist:'Fagner',year:1973},{title:'Borbulhas de Amor',artist:'Fagner',year:1991},{title:'Deslizes',artist:'Fagner',year:1987},{title:'Espumas ao Vento',artist:'Fagner',year:1997},{title:'Mucuripe',artist:'Fagner',year:1972},{title:'Amor I Love You',artist:'Marisa Monte',year:2000},{title:'Beija Eu',artist:'Marisa Monte',year:1991},{title:'Ainda Bem',artist:'Marisa Monte',year:2011},{title:'Depois',artist:'Marisa Monte',year:2011},{title:'Vilarejo',artist:'Marisa Monte',year:2006},{title:'Infinito Particular',artist:'Marisa Monte',year:2006},{title:'Bem Que Se Quis',artist:'Marisa Monte',year:1989},{title:'Relicário',artist:'Nando Reis',year:2000},{title:'All Star',artist:'Nando Reis',year:2000},{title:'Por Onde Andei',artist:'Nando Reis',year:2004},{title:'Pra Você Guardei o Amor',artist:'Nando Reis & Ana Cañas',year:2009},{title:'O Segundo Sol',artist:'Cássia Eller',year:1999},{title:'Malandragem',artist:'Cássia Eller',year:1994},{title:'Por Enquanto',artist:'Cássia Eller',year:1990},{title:'Palavras ao Vento',artist:'Cássia Eller',year:1999},{title:'Velha Infância',artist:'Tribalistas',year:2002},{title:'Já Sei Namorar',artist:'Tribalistas',year:2002},{title:'É Você',artist:'Tribalistas',year:2002},{title:'Passe em Casa',artist:'Tribalistas',year:2002},{title:'Mina do Condomínio',artist:'Seu Jorge',year:2007},{title:'Burguesinha',artist:'Seu Jorge',year:2007},{title:'Amiga da Minha Mulher',artist:'Seu Jorge',year:2011},{title:'Tive Razão',artist:'Seu Jorge',year:2004},{title:'Boa Sorte / Good Luck',artist:'Vanessa da Mata & Ben Harper',year:2007},{title:'Ai, Ai, Ai...',artist:'Vanessa da Mata',year:2004},{title:'Amado',artist:'Vanessa da Mata',year:2007},{title:'Não Me Deixe Só',artist:'Vanessa da Mata',year:2002},{title:'Trevo (Tu)',artist:'ANAVITÓRIA & Tiago Iorc',year:2016},{title:'Singular',artist:'ANAVITÓRIA',year:2016},{title:'Amei Te Ver',artist:'Tiago Iorc',year:2015},{title:'Coisa Linda',artist:'Tiago Iorc',year:2015},{title:'De Janeiro a Janeiro',artist:'Roberta Campos & Nando Reis',year:2010},{title:'Partilhar',artist:'Rubel',year:2018},{title:'Quando Bate Aquela Saudade',artist:'Rubel',year:2013},{title:'Dona Cila',artist:'Maria Gadú',year:2009},{title:'Shimbalaiê',artist:'Maria Gadú',year:2009},{title:'Pra Sonhar',artist:'Marcelo Jeneci',year:2010},{title:'Felicidade',artist:'Marcelo Jeneci',year:2010},{title:'Paciência',artist:'Lenine',year:1999},{title:'Jack Soul Brasileiro',artist:'Lenine',year:1999},{title:'À Primeira Vista',artist:'Chico César',year:1995},{title:'Mama África',artist:'Chico César',year:1995},{title:'Resposta ao Tempo',artist:'Nana Caymmi',year:1998},{title:'Garota de Ipanema',artist:'Tom Jobim',year:1963},{title:'Wave',artist:'Tom Jobim',year:1967},{title:'Chega de Saudade',artist:'João Gilberto',year:1959},{title:'Desafinado',artist:'João Gilberto',year:1959},{title:'Eu Sei Que Vou Te Amar',artist:'Tom Jobim & Vinicius de Moraes',year:1959},{title:'A Felicidade',artist:'Tom Jobim & Vinicius de Moraes',year:1959},{title:'Samba de Uma Nota Só',artist:'Tom Jobim',year:1960},{title:'Corcovado',artist:'Tom Jobim',year:1960},{title:'Ponteio',artist:'Edu Lobo',year:1967},{title:'Upa Neguinho',artist:'Edu Lobo',year:1966},{title:'O Barquinho',artist:'Nara Leão',year:1964},{title:'Diz Que Fui por Aí',artist:'Nara Leão',year:1964},{title:'Madalena',artist:'Ivan Lins',year:1970},{title:'Começar de Novo',artist:'Ivan Lins',year:1979},{title:'Dinorah, Dinorah',artist:'Ivan Lins',year:1980},{title:'Meu País',artist:'Ivan Lins',year:1984},{title:'O Bêbado e a Equilibrista',artist:'João Bosco',year:1979},{title:'Papel Machê',artist:'João Bosco',year:1984},{title:'Corsário',artist:'João Bosco',year:1975},{title:'Kid Cavaquinho',artist:'João Bosco',year:1974},{title:'Sangrando',artist:'Gonzaguinha',year:1980},{title:'O Que É, O Que É?',artist:'Gonzaguinha',year:1982},{title:'Explode Coração',artist:'Gonzaguinha',year:1978},{title:'Comportamento Geral',artist:'Gonzaguinha',year:1973}],'Rock':[{title:'Johnny B. Goode',artist:'Chuck Berry',year:1958},{title:'Jailhouse Rock',artist:'Elvis Presley',year:1957},{title:'You Really Got Me',artist:'The Kinks',year:1964},{title:'My Generation',artist:'The Who',year:1965},{title:'Paint It, Black',artist:'The Rolling Stones',year:1966},{title:'(I Can\'t Get No) Satisfaction',artist:'The Rolling Stones',year:1965},{title:'Purple Haze',artist:'Jimi Hendrix',year:1967},{title:'Sunshine of Your Love',artist:'Cream',year:1967},{title:'Whole Lotta Love',artist:'Led Zeppelin',year:1969},{title:'Paranoid',artist:'Black Sabbath',year:1970},{title:'Smoke on the Water',artist:'Deep Purple',year:1972},{title:'Dream On',artist:'Aerosmith',year:1973},{title:'Sweet Home Alabama',artist:'Lynyrd Skynyrd',year:1974},{title:'Bohemian Rhapsody',artist:'Queen',year:1975},{title:'More Than a Feeling',artist:'Boston',year:1976},{title:'Hotel California',artist:'Eagles',year:1976},{title:'Go Your Own Way',artist:'Fleetwood Mac',year:1977},{title:'We Will Rock You',artist:'Queen',year:1977},{title:'Don\'t Stop Me Now',artist:'Queen',year:1978},{title:'Highway to Hell',artist:'AC/DC',year:1979},{title:'Another Brick in the Wall, Pt. 2',artist:'Pink Floyd',year:1979},{title:'Back in Black',artist:'AC/DC',year:1980},{title:'Another One Bites the Dust',artist:'Queen',year:1980},{title:'Start Me Up',artist:'The Rolling Stones',year:1981},{title:'Eye of the Tiger',artist:'Survivor',year:1982},{title:'Every Breath You Take',artist:'The Police',year:1983},{title:'Jump',artist:'Van Halen',year:1984},{title:'The Boys of Summer',artist:'Don Henley',year:1984},{title:'Summer of \'69',artist:'Bryan Adams',year:1984},{title:'Don\'t You (Forget About Me)',artist:'Simple Minds',year:1985},{title:'Livin\' on a Prayer',artist:'Bon Jovi',year:1986},{title:'You Give Love a Bad Name',artist:'Bon Jovi',year:1986},{title:'With or Without You',artist:'U2',year:1987},{title:'Sweet Child o\' Mine',artist:'Guns N\' Roses',year:1987},{title:'Paradise City',artist:'Guns N\' Roses',year:1987},{title:'Welcome to the Jungle',artist:'Guns N\' Roses',year:1987},{title:'Pour Some Sugar on Me',artist:'Def Leppard',year:1987},{title:'Where Is My Mind?',artist:'Pixies',year:1988},{title:'Free Fallin\'',artist:'Tom Petty',year:1989},{title:'Enter Sandman',artist:'Metallica',year:1991},{title:'Nothing Else Matters',artist:'Metallica',year:1991},{title:'Smells Like Teen Spirit',artist:'Nirvana',year:1991},{title:'Come as You Are',artist:'Nirvana',year:1991},{title:'Under the Bridge',artist:'Red Hot Chili Peppers',year:1991},{title:'Losing My Religion',artist:'R.E.M.',year:1991},{title:'Alive',artist:'Pearl Jam',year:1991},{title:'Jeremy',artist:'Pearl Jam',year:1991},{title:'Creep',artist:'Radiohead',year:1992},{title:'What\'s Up?',artist:'4 Non Blondes',year:1992},{title:'Zombie',artist:'The Cranberries',year:1994},{title:'Basket Case',artist:'Green Day',year:1994},{title:'Black Hole Sun',artist:'Soundgarden',year:1994},{title:'Wonderwall',artist:'Oasis',year:1995},{title:'Don\'t Look Back in Anger',artist:'Oasis',year:1995},{title:'1979',artist:'The Smashing Pumpkins',year:1995},{title:'Don\'t Speak',artist:'No Doubt',year:1995},{title:'Song 2',artist:'Blur',year:1997},{title:'Everlong',artist:'Foo Fighters',year:1997},{title:'Iris',artist:'Goo Goo Dolls',year:1998},{title:'Californication',artist:'Red Hot Chili Peppers',year:1999},{title:'Learn to Fly',artist:'Foo Fighters',year:1999},{title:'In the End',artist:'Linkin Park',year:2000},{title:'Last Resort',artist:'Papa Roach',year:2000},{title:'It\'s My Life',artist:'Bon Jovi',year:2000},{title:'How You Remind Me',artist:'Nickelback',year:2001},{title:'The Middle',artist:'Jimmy Eat World',year:2001},{title:'Numb',artist:'Linkin Park',year:2003},{title:'Bring Me to Life',artist:'Evanescence',year:2003},{title:'Seven Nation Army',artist:'The White Stripes',year:2003},{title:'Mr. Brightside',artist:'The Killers',year:2003},{title:'American Idiot',artist:'Green Day',year:2004},{title:'Boulevard of Broken Dreams',artist:'Green Day',year:2004},{title:'Best of You',artist:'Foo Fighters',year:2005},{title:'I Write Sins Not Tragedies',artist:'Panic! at the Disco',year:2005},{title:'Sex on Fire',artist:'Kings of Leon',year:2008},{title:'Use Somebody',artist:'Kings of Leon',year:2008},{title:'21 Guns',artist:'Green Day',year:2009},{title:'Radioactive',artist:'Imagine Dragons',year:2012},{title:'Do I Wanna Know?',artist:'Arctic Monkeys',year:2013},{title:'Believer',artist:'Imagine Dragons',year:2017},{title:'The Pretender',artist:'Foo Fighters',year:2007},{title:'Somebody Told Me',artist:'The Killers',year:2004},{title:'Take Me Out',artist:'Franz Ferdinand',year:2004},{title:'Are You Gonna Be My Girl',artist:'Jet',year:2003},{title:'No One Knows',artist:'Queens of the Stone Age',year:2002},{title:'By the Way',artist:'Red Hot Chili Peppers',year:2002},{title:'Otherside',artist:'Red Hot Chili Peppers',year:1999},{title:'Scar Tissue',artist:'Red Hot Chili Peppers',year:1999},{title:'Kryptonite',artist:'3 Doors Down',year:2000},{title:'My Sacrifice',artist:'Creed',year:2001},{title:'Higher',artist:'Creed',year:1999},{title:'Tempo Perdido',artist:'Legião Urbana',year:1986},{title:'Será',artist:'Legião Urbana',year:1985},{title:'Que País É Este',artist:'Legião Urbana',year:1987},{title:'Faroeste Caboclo',artist:'Legião Urbana',year:1987},{title:'Pais e Filhos',artist:'Legião Urbana',year:1989},{title:'Eduardo e Mônica',artist:'Legião Urbana',year:1986},{title:'Índios',artist:'Legião Urbana',year:1986},{title:'Pro Dia Nascer Feliz',artist:'Barão Vermelho',year:1983},{title:'Bete Balanço',artist:'Barão Vermelho',year:1984},{title:'Exagerado',artist:'Cazuza',year:1985},{title:'O Tempo Não Para',artist:'Cazuza',year:1988},{title:'Codinome Beija-Flor',artist:'Cazuza',year:1985},{title:'Meu Erro',artist:'Os Paralamas do Sucesso',year:1984},{title:'Óculos',artist:'Os Paralamas do Sucesso',year:1984},{title:'Alagados',artist:'Os Paralamas do Sucesso',year:1986},{title:'Lanterna dos Afogados',artist:'Os Paralamas do Sucesso',year:1989},{title:'Sonífera Ilha',artist:'Titãs',year:1984},{title:'Comida',artist:'Titãs',year:1987},{title:'Flores',artist:'Titãs',year:1989},{title:'Marvin',artist:'Titãs',year:1984},{title:'Inútil',artist:'Ultraje a Rigor',year:1983},{title:'Nós Vamos Invadir Sua Praia',artist:'Ultraje a Rigor',year:1985},{title:'Rádio Pirata',artist:'RPM',year:1985},{title:'Olhar 43',artist:'RPM',year:1985},{title:'Garota Nacional',artist:'Skank',year:1996},{title:'Tão Seu',artist:'Skank',year:1996},{title:'Resposta',artist:'Skank',year:1998},{title:'Dois Rios',artist:'Skank',year:2003},{title:'Vou Deixar',artist:'Skank',year:2003},{title:'Mulher de Fases',artist:'Raimundos',year:1999},{title:'A Mais Pedida',artist:'Raimundos',year:1999},{title:'Proibida pra Mim',artist:'Charlie Brown Jr.',year:1997},{title:'Zóio de Lula',artist:'Charlie Brown Jr.',year:1999},{title:'Só os Loucos Sabem',artist:'Charlie Brown Jr.',year:2009},{title:'Dias de Luta, Dias de Glória',artist:'Charlie Brown Jr.',year:2005},{title:'Equalize',artist:'Pitty',year:2003},{title:'Admirável Chip Novo',artist:'Pitty',year:2003},{title:'Na Sua Estante',artist:'Pitty',year:2005},{title:'À Sua Maneira',artist:'Capital Inicial',year:2002},{title:'Natasha',artist:'Capital Inicial',year:2000},{title:'Primeiros Erros',artist:'Capital Inicial',year:2000},{title:'Música Urbana',artist:'Capital Inicial',year:1986},{title:'Anna Júlia',artist:'Los Hermanos',year:1999},{title:'O Vencedor',artist:'Los Hermanos',year:2003},{title:'Último Romance',artist:'Los Hermanos',year:2003},{title:'Pescador de Ilusões',artist:'O Rappa',year:1996},{title:'Minha Alma',artist:'O Rappa',year:1999},{title:'Me Deixa',artist:'O Rappa',year:1999},{title:'Só Hoje',artist:'Jota Quest',year:2002},{title:'Fácil',artist:'Jota Quest',year:1998},{title:'Dias Melhores',artist:'Jota Quest',year:2000},{title:'Me Adora',artist:'Pitty',year:2009},{title:'Máscara',artist:'Pitty',year:2003},{title:'Teto de Vidro',artist:'Pitty',year:2003},{title:'Só por uma Noite',artist:'Charlie Brown Jr.',year:2002},{title:'Should I Stay or Should I Go',artist:'The Clash',year:1982},{title:'Rebel Yell',artist:'Billy Idol',year:1983},{title:'The Trooper',artist:'Iron Maiden',year:1983},{title:'Breaking the Law',artist:'Judas Priest',year:1980}],'Pop':[{title:'Dancing Queen',artist:'ABBA',year:1976},{title:'Mamma Mia',artist:'ABBA',year:1975},{title:'I Will Survive',artist:'Gloria Gaynor',year:1978},{title:'Heart of Glass',artist:'Blondie',year:1978},{title:'Billie Jean',artist:'Michael Jackson',year:1982},{title:'Beat It',artist:'Michael Jackson',year:1982},{title:'Thriller',artist:'Michael Jackson',year:1982},{title:'Girls Just Want to Have Fun',artist:'Cyndi Lauper',year:1983},{title:'Time After Time',artist:'Cyndi Lauper',year:1983},{title:'Like a Virgin',artist:'Madonna',year:1984},{title:'Material Girl',artist:'Madonna',year:1984},{title:'Wake Me Up Before You Go-Go',artist:'Wham!',year:1984},{title:'Take on Me',artist:'a-ha',year:1985},{title:'True Colors',artist:'Cyndi Lauper',year:1986},{title:'Man in the Mirror',artist:'Michael Jackson',year:1987},{title:'Faith',artist:'George Michael',year:1987},{title:'Like a Prayer',artist:'Madonna',year:1989},{title:'Vogue',artist:'Madonna',year:1990},{title:'Vision of Love',artist:'Mariah Carey',year:1990},{title:'Baby Baby',artist:'Amy Grant',year:1991},{title:'I Will Always Love You',artist:'Whitney Houston',year:1992},{title:'Dreamlover',artist:'Mariah Carey',year:1993},{title:'All I Wanna Do',artist:'Sheryl Crow',year:1994},{title:'Fantasy',artist:'Mariah Carey',year:1995},{title:'Wannabe',artist:'Spice Girls',year:1996},{title:'Torn',artist:'Natalie Imbruglia',year:1997},{title:'Everybody (Backstreet\'s Back)',artist:'Backstreet Boys',year:1997},{title:'Believe',artist:'Cher',year:1998},{title:'...Baby One More Time',artist:'Britney Spears',year:1998},{title:'I Want It That Way',artist:'Backstreet Boys',year:1999},{title:'Genie in a Bottle',artist:'Christina Aguilera',year:1999},{title:'No Scrubs',artist:'TLC',year:1999},{title:'Oops!... I Did It Again',artist:'Britney Spears',year:2000},{title:'Bye Bye Bye',artist:'NSYNC',year:2000},{title:'Whenever, Wherever',artist:'Shakira',year:2001},{title:'Can\'t Get You Out of My Head',artist:'Kylie Minogue',year:2001},{title:'Complicated',artist:'Avril Lavigne',year:2002},{title:'Beautiful',artist:'Christina Aguilera',year:2002},{title:'Crazy in Love',artist:'Beyoncé feat. Jay-Z',year:2003},{title:'Toxic',artist:'Britney Spears',year:2003},{title:'Yeah!',artist:'Usher feat. Lil Jon & Ludacris',year:2004},{title:'Since U Been Gone',artist:'Kelly Clarkson',year:2004},{title:'Hollaback Girl',artist:'Gwen Stefani',year:2004},{title:'Hung Up',artist:'Madonna',year:2005},{title:'Hips Don\'t Lie',artist:'Shakira feat. Wyclef Jean',year:2006},{title:'Promiscuous',artist:'Nelly Furtado',year:2006},{title:'Umbrella',artist:'Rihanna feat. Jay-Z',year:2007},{title:'Bleeding Love',artist:'Leona Lewis',year:2007},{title:'Don\'t Stop the Music',artist:'Rihanna',year:2007},{title:'Poker Face',artist:'Lady Gaga',year:2008},{title:'Single Ladies (Put a Ring on It)',artist:'Beyoncé',year:2008},{title:'Halo',artist:'Beyoncé',year:2008},{title:'Bad Romance',artist:'Lady Gaga',year:2009},{title:'I Gotta Feeling',artist:'The Black Eyed Peas',year:2009},{title:'Party in the U.S.A.',artist:'Miley Cyrus',year:2009},{title:'Tik Tok',artist:'Kesha',year:2009},{title:'Firework',artist:'Katy Perry',year:2010},{title:'Teenage Dream',artist:'Katy Perry',year:2010},{title:'Just the Way You Are',artist:'Bruno Mars',year:2010},{title:'Rolling in the Deep',artist:'Adele',year:2010},{title:'Someone Like You',artist:'Adele',year:2011},{title:'We Found Love',artist:'Rihanna feat. Calvin Harris',year:2011},{title:'Call Me Maybe',artist:'Carly Rae Jepsen',year:2011},{title:'Titanium',artist:'David Guetta feat. Sia',year:2011},{title:'What Makes You Beautiful',artist:'One Direction',year:2011},{title:'Locked Out of Heaven',artist:'Bruno Mars',year:2012},{title:'Diamonds',artist:'Rihanna',year:2012},{title:'Roar',artist:'Katy Perry',year:2013},{title:'Wrecking Ball',artist:'Miley Cyrus',year:2013},{title:'Happy',artist:'Pharrell Williams',year:2013},{title:'Counting Stars',artist:'OneRepublic',year:2013},{title:'Shake It Off',artist:'Taylor Swift',year:2014},{title:'Blank Space',artist:'Taylor Swift',year:2014},{title:'Chandelier',artist:'Sia',year:2014},{title:'Uptown Funk',artist:'Mark Ronson feat. Bruno Mars',year:2014},{title:'Sorry',artist:'Justin Bieber',year:2015},{title:'Love Yourself',artist:'Justin Bieber',year:2015},{title:'Hello',artist:'Adele',year:2015},{title:'Cheap Thrills',artist:'Sia',year:2016},{title:'Can\'t Stop the Feeling!',artist:'Justin Timberlake',year:2016},{title:'Shape of You',artist:'Ed Sheeran',year:2017},{title:'Havana',artist:'Camila Cabello feat. Young Thug',year:2017},{title:'New Rules',artist:'Dua Lipa',year:2017},{title:'Perfect',artist:'Ed Sheeran',year:2017},{title:'Thank U, Next',artist:'Ariana Grande',year:2018},{title:'7 Rings',artist:'Ariana Grande',year:2019},{title:'Bad Guy',artist:'Billie Eilish',year:2019},{title:'Señorita',artist:'Shawn Mendes & Camila Cabello',year:2019},{title:'Blinding Lights',artist:'The Weeknd',year:2019},{title:'Don\'t Start Now',artist:'Dua Lipa',year:2019},{title:'Watermelon Sugar',artist:'Harry Styles',year:2019},{title:'Dance Monkey',artist:'Tones and I',year:2019},{title:'Levitating',artist:'Dua Lipa',year:2020},{title:'Save Your Tears',artist:'The Weeknd',year:2020},{title:'Drivers License',artist:'Olivia Rodrigo',year:2021},{title:'Good 4 U',artist:'Olivia Rodrigo',year:2021},{title:'Stay',artist:'The Kid LAROI & Justin Bieber',year:2021},{title:'As It Was',artist:'Harry Styles',year:2022},{title:'Anti-Hero',artist:'Taylor Swift',year:2022},{title:'Flowers',artist:'Miley Cyrus',year:2023},{title:'Espresso',artist:'Sabrina Carpenter',year:2024},{title:'Birds of a Feather',artist:'Billie Eilish',year:2024},{title:'Please Please Please',artist:'Sabrina Carpenter',year:2024},{title:'Beautiful Things',artist:'Benson Boone',year:2024},{title:'Show das Poderosas',artist:'Anitta',year:2013},{title:'Bang',artist:'Anitta',year:2015},{title:'Paradinha',artist:'Anitta',year:2017},{title:'Downtown',artist:'Anitta & J Balvin',year:2017},{title:'Envolver',artist:'Anitta',year:2021},{title:'Dona de Mim',artist:'IZA',year:2018},{title:'Pesadão',artist:'IZA feat. Marcelo Falcão',year:2017},{title:'Brisa',artist:'IZA',year:2019},{title:'Meu Talismã',artist:'IZA',year:2019},{title:'Modo Turbo',artist:'Luísa Sonza, Pabllo Vittar & Anitta',year:2020},{title:'Braba',artist:'Luísa Sonza',year:2020},{title:'Penhasco',artist:'Luísa Sonza',year:2021},{title:'Cachorrinhas',artist:'Luísa Sonza',year:2022},{title:'Campo de Morango',artist:'Luísa Sonza',year:2023},{title:'Amor de Que',artist:'Pabllo Vittar',year:2019},{title:'K.O.',artist:'Pabllo Vittar',year:2017},{title:'Corpo Sensual',artist:'Pabllo Vittar feat. Mateus Carrilho',year:2017},{title:'Problema Seu',artist:'Pabllo Vittar',year:2018},{title:'Sua Cara',artist:'Major Lazer feat. Anitta & Pabllo Vittar',year:2017},{title:'A Queda',artist:'Gloria Groove',year:2021},{title:'Vermelho',artist:'Gloria Groove',year:2022},{title:'Bonekinha',artist:'Gloria Groove',year:2021},{title:'Coisa Boa',artist:'Gloria Groove',year:2019},{title:'Meu Abrigo',artist:'Melim',year:2017},{title:'Ouvi Dizer',artist:'Melim',year:2018},{title:'O Sol',artist:'Vitor Kley',year:2017},{title:'Morena',artist:'Vitor Kley',year:2018},{title:'Trevo (Tu)',artist:'ANAVITÓRIA & Tiago Iorc',year:2016},{title:'Pupila',artist:'ANAVITÓRIA & Vitor Kley',year:2019},{title:'Amei Te Ver',artist:'Tiago Iorc',year:2015},{title:'Hear Me Now',artist:'Alok, Bruno Martini & Zeeba',year:2016},{title:'Never Let Me Go',artist:'Alok, Bruno Martini & Zeeba',year:2017},{title:'Ocean',artist:'Alok, Zeeba & IRO',year:2018},{title:'Boa Sorte / Good Luck',artist:'Vanessa da Mata & Ben Harper',year:2007},{title:'Velha Infância',artist:'Tribalistas',year:2002},{title:'Amor I Love You',artist:'Marisa Monte',year:2000},{title:'Ai Se Eu Te Pego',artist:'Michel Teló',year:2011},{title:'Balada',artist:'Gusttavo Lima',year:2011},{title:'Meteoro',artist:'Luan Santana',year:2009},{title:'Acordando o Prédio',artist:'Luan Santana',year:2017},{title:'Loka',artist:'Simone & Simaria feat. Anitta',year:2017},{title:'Infiel',artist:'Marília Mendonça',year:2015},{title:'Todo Mundo Vai Sofrer',artist:'Marília Mendonça',year:2019},{title:'Cheia de Manias',artist:'Raça Negra',year:1992},{title:'Anna Júlia',artist:'Los Hermanos',year:1999},{title:'Garota Nacional',artist:'Skank',year:1996}],'Hits 80 & 90':[{title:'Evidências',artist:'Chitãozinho & Xororó',year:1990},{title:'Anna Júlia',artist:'Los Hermanos',year:1999},{title:'Tempo Perdido',artist:'Legião Urbana',year:1986},{title:'Cheia de Manias',artist:'Raça Negra',year:1992},{title:'Pais e Filhos',artist:'Legião Urbana',year:1989},{title:'Whisky a Go-Go',artist:'Roupa Nova',year:1984},{title:'Faroeste Caboclo',artist:'Legião Urbana',year:1987},{title:'Malandragem',artist:'Cássia Eller',year:1994},{title:'Pelados em Santos',artist:'Mamonas Assassinas',year:1995},{title:'Billie Jean',artist:'Michael Jackson',year:1982},{title:'Take on Me',artist:'a-ha',year:1985},{title:'I Want It That Way',artist:'Backstreet Boys',year:1999},{title:'Another One Bites the Dust',artist:'Queen',year:1980},{title:'Girls Just Want to Have Fun',artist:'Cyndi Lauper',year:1983},{title:'Smells Like Teen Spirit',artist:'Nirvana',year:1991},{title:'Wonderwall',artist:'Oasis',year:1995},{title:'...Baby One More Time',artist:'Britney Spears',year:1998},{title:'Aquarela do Brasil',artist:'João Gilberto',year:1980},{title:'Emoções',artist:'Roberto Carlos',year:1981},{title:'Sozinho',artist:'Caetano Veloso',year:1998},{title:'Você é Linda',artist:'Caetano Veloso',year:1983},{title:'Pro Dia Nascer Feliz',artist:'Barão Vermelho',year:1983},{title:'Bete Balanço',artist:'Barão Vermelho',year:1984},{title:'Exagerado',artist:'Cazuza',year:1985},{title:'O Tempo Não Para',artist:'Cazuza',year:1988},{title:'Codinome Beija-Flor',artist:'Cazuza',year:1985},{title:'Que País É Este',artist:'Legião Urbana',year:1987},{title:'Será',artist:'Legião Urbana',year:1985},{title:'Eduardo e Mônica',artist:'Legião Urbana',year:1986},{title:'Índios',artist:'Legião Urbana',year:1986},{title:'Música Urbana',artist:'Capital Inicial',year:1986},{title:'Óculos',artist:'Os Paralamas do Sucesso',year:1984},{title:'Meu Erro',artist:'Os Paralamas do Sucesso',year:1984},{title:'Alagados',artist:'Os Paralamas do Sucesso',year:1986},{title:'Lanterna dos Afogados',artist:'Os Paralamas do Sucesso',year:1989},{title:'Sonífera Ilha',artist:'Titãs',year:1984},{title:'Comida',artist:'Titãs',year:1987},{title:'Flores',artist:'Titãs',year:1989},{title:'Marvin',artist:'Titãs',year:1984},{title:'Inútil',artist:'Ultraje a Rigor',year:1983},{title:'Nós Vamos Invadir Sua Praia',artist:'Ultraje a Rigor',year:1985},{title:'Rádio Pirata',artist:'RPM',year:1985},{title:'Olhar 43',artist:'RPM',year:1985},{title:'Fullgás',artist:'Marina Lima',year:1984},{title:'Uma Noite e 1/2',artist:'Marina Lima',year:1987},{title:'A Fórmula do Amor',artist:'Léo Jaime',year:1985},{title:'Garota Nacional',artist:'Skank',year:1996},{title:'Tão Seu',artist:'Skank',year:1996},{title:'Resposta',artist:'Skank',year:1998},{title:'Mulher de Fases',artist:'Raimundos',year:1999},{title:'A Mais Pedida',artist:'Raimundos',year:1999},{title:'Proibida pra Mim',artist:'Charlie Brown Jr.',year:1997},{title:'Zóio de Lula',artist:'Charlie Brown Jr.',year:1999},{title:'O Segundo Sol',artist:'Cássia Eller',year:1999},{title:'Por Enquanto',artist:'Cássia Eller',year:1990},{title:'Fácil',artist:'Jota Quest',year:1998},{title:'Beija Eu',artist:'Marisa Monte',year:1991},{title:'É o Amor',artist:'Zezé Di Camargo & Luciano',year:1991},{title:'No Dia em Que Eu Saí de Casa',artist:'Zezé Di Camargo & Luciano',year:1995},{title:'Pense em Mim',artist:'Leandro & Leonardo',year:1990},{title:'Entre Tapas e Beijos',artist:'Leandro & Leonardo',year:1989},{title:'Boate Azul',artist:'Joaquim & Manuel',year:1985},{title:'Ainda Ontem Chorei de Saudade',artist:'João Mineiro & Marciano',year:1988},{title:'Telefone Mudo',artist:'Trio Parada Dura',year:1983},{title:'Fio de Cabelo',artist:'Chitãozinho & Xororó',year:1982},{title:'Depois do Prazer',artist:'Só Pra Contrariar',year:1997},{title:'Essa Tal Liberdade',artist:'Só Pra Contrariar',year:1994},{title:'Cilada',artist:'Molejo',year:1995},{title:'Brincadeira de Criança',artist:'Molejo',year:1997},{title:'Derê',artist:'Soweto',year:1998},{title:'Temporal',artist:'Art Popular',year:1996},{title:'Me Apaixonei pela Pessoa Errada',artist:'Exaltasamba',year:1999},{title:'Eva',artist:'Banda Eva',year:1997},{title:'Beleza Rara',artist:'Banda Eva',year:1996},{title:'Milla',artist:'Netinho',year:1996},{title:'Arerê',artist:'Ivete Sangalo',year:1997},{title:'Prefixo de Verão',artist:'Banda Mel',year:1990},{title:'Thriller',artist:'Michael Jackson',year:1982},{title:'Beat It',artist:'Michael Jackson',year:1982},{title:'Like a Prayer',artist:'Madonna',year:1989},{title:'Like a Virgin',artist:'Madonna',year:1984},{title:'Material Girl',artist:'Madonna',year:1984},{title:'Wake Me Up Before You Go-Go',artist:'Wham!',year:1984},{title:'Careless Whisper',artist:'George Michael',year:1984},{title:'Every Breath You Take',artist:'The Police',year:1983},{title:'Africa',artist:'Toto',year:1982},{title:'Eye of the Tiger',artist:'Survivor',year:1982},{title:'Footloose',artist:'Kenny Loggins',year:1984},{title:'Heaven Is a Place on Earth',artist:'Belinda Carlisle',year:1987},{title:'Faith',artist:'George Michael',year:1987},{title:'You Give Love a Bad Name',artist:'Bon Jovi',year:1986},{title:'With or Without You',artist:'U2',year:1987},{title:'I Still Haven\'t Found What I\'m Looking For',artist:'U2',year:1987},{title:'The Final Countdown',artist:'Europe',year:1986},{title:'Never Gonna Give You Up',artist:'Rick Astley',year:1987},{title:'Maniac',artist:'Michael Sembello',year:1983},{title:'Total Eclipse of the Heart',artist:'Bonnie Tyler',year:1983},{title:'What\'s Love Got to Do with It',artist:'Tina Turner',year:1984},{title:'Don\'t You (Forget About Me)',artist:'Simple Minds',year:1985},{title:'Everybody Wants to Rule the World',artist:'Tears for Fears',year:1985},{title:'The Power of Love',artist:'Huey Lewis and the News',year:1985},{title:'I Think We\'re Alone Now',artist:'Tiffany',year:1987},{title:'Losing My Religion',artist:'R.E.M.',year:1991},{title:'Zombie',artist:'The Cranberries',year:1994},{title:'What\'s Up?',artist:'4 Non Blondes',year:1992},{title:'Iris',artist:'Goo Goo Dolls',year:1998},{title:'Torn',artist:'Natalie Imbruglia',year:1997},{title:'No Scrubs',artist:'TLC',year:1999},{title:'Wannabe',artist:'Spice Girls',year:1996},{title:'Everybody (Backstreet\'s Back)',artist:'Backstreet Boys',year:1997},{title:'Genie in a Bottle',artist:'Christina Aguilera',year:1999},{title:'Believe',artist:'Cher',year:1998},{title:'Kiss Me',artist:'Sixpence None the Richer',year:1998},{title:'MMMBop',artist:'Hanson',year:1997},{title:'My Heart Will Go On',artist:'Céline Dion',year:1997},{title:'I Don\'t Want to Miss a Thing',artist:'Aerosmith',year:1998},{title:'Under the Bridge',artist:'Red Hot Chili Peppers',year:1991},{title:'Californication',artist:'Red Hot Chili Peppers',year:1999},{title:'Enter Sandman',artist:'Metallica',year:1991},{title:'Nothing Else Matters',artist:'Metallica',year:1991},{title:'Basket Case',artist:'Green Day',year:1994},{title:'Don\'t Speak',artist:'No Doubt',year:1995},{title:'Time After Time',artist:'Cyndi Lauper',year:1983},{title:'True Colors',artist:'Cyndi Lauper',year:1986},{title:'Man in the Mirror',artist:'Michael Jackson',year:1987},{title:'Vogue',artist:'Madonna',year:1990},{title:'Vision of Love',artist:'Mariah Carey',year:1990},{title:'Baby Baby',artist:'Amy Grant',year:1991},{title:'I Will Always Love You',artist:'Whitney Houston',year:1992},{title:'Dreamlover',artist:'Mariah Carey',year:1993},{title:'All I Wanna Do',artist:'Sheryl Crow',year:1994},{title:'Fantasy',artist:'Mariah Carey',year:1995},{title:'Back in Black',artist:'AC/DC',year:1980},{title:'Start Me Up',artist:'The Rolling Stones',year:1981},{title:'Jump',artist:'Van Halen',year:1984},{title:'The Boys of Summer',artist:'Don Henley',year:1984},{title:'Summer of \'69',artist:'Bryan Adams',year:1984},{title:'Livin\' on a Prayer',artist:'Bon Jovi',year:1986},{title:'Sweet Child o\' Mine',artist:'Guns N\' Roses',year:1987},{title:'Paradise City',artist:'Guns N\' Roses',year:1987},{title:'Welcome to the Jungle',artist:'Guns N\' Roses',year:1987},{title:'Pour Some Sugar on Me',artist:'Def Leppard',year:1987},{title:'Where Is My Mind?',artist:'Pixies',year:1988},{title:'Free Fallin\'',artist:'Tom Petty',year:1989},{title:'Come as You Are',artist:'Nirvana',year:1991},{title:'Alive',artist:'Pearl Jam',year:1991},{title:'Jeremy',artist:'Pearl Jam',year:1991},{title:'Creep',artist:'Radiohead',year:1992},{title:'Black Hole Sun',artist:'Soundgarden',year:1994},{title:'Don\'t Look Back in Anger',artist:'Oasis',year:1995}]};;
+function buildCategoryDeck(name){return name==="Oficial"?[...SONGS]:[...(CATEGORY_DECKS[name]||[])];}
+$("catgrid").innerHTML=categoryNames.map((c,i)=>`<button type="button" class="cat ${i===0?'selected':''}" data-cat="${c}"><b>${c}</b><div class="muted">${c==='Oficial'?SONGS.length:(CATEGORY_DECKS[c]||[]).length} músicas${c==='Oficial'?' • mix de gêneros':' • seleção exclusiva'}</div></button>`).join("");
+document.querySelectorAll(".cat").forEach(b=>b.onclick=()=>{category=b.dataset.cat;document.querySelectorAll(".cat").forEach(x=>x.classList.toggle("selected",x===b))});
+$("howBtn").onclick=()=>$("howModal").classList.remove("hidden");$("closeHow").onclick=()=>$("howModal").classList.add("hidden");
+$("useBonus").onclick=()=>{const p=players[turn];if(p.bonusUsed||!playerCanGuess)return;$("bonusInput").classList.remove("hidden");$("yearGuess").focus()};
+$("lockGuess").onclick=()=>{const p=players[turn],v=Number($("yearGuess").value);if(!Number.isInteger(v)||v<1900||v>2030){$("bonusStatus").textContent="Digite um ano válido.";return}p.bonusGuess=v;p.bonusUsed=true;$("bonusInput").classList.add("hidden");$("useBonus").disabled=true;$("bonusStatus").textContent=`Palpite ${v} confirmado. O resultado aparece ao revelar.`;scores()};
+function showChampion(){const p=winner;if(!p)return;$("champTitle").textContent=`${p.name} é o campeão!`;$("champMeta").textContent=`${p.points} pontos • ${p.hits.length} músicas na Lista Campeã • ${category}`;$("champList").innerHTML=p.hits.map((x,i)=>`<div class="champ"><span><b>${i+1}. ${esc(x.title)}</b><br><span class="muted">${esc(x.artist)}</span></span><b>${x.year}</b></div>`).join("");$("champModal").classList.remove("hidden")};
+$("newGame").onclick=()=>{$("champModal").classList.add("hidden");$("game").classList.add("hidden");$("setup").classList.remove("hidden")};
+$("showDj").onclick=()=>{
+ $("djHidden").classList.add("hidden");$("djReveal").classList.remove("hidden");
+};
+$("hideDj").onclick=()=>{
+ $("djReveal").classList.add("hidden");$("playerReady").classList.remove("hidden");
+ playerCanGuess=true;$("hint").textContent="Ouça a música e escolha onde ela entra na sua linha do tempo.";
+};
+$("start").onclick=()=>{
+ const names=$("names").value.split(",").map(x=>x.trim()).filter(Boolean).slice(0,6);
+ if(names.length<2){$("setupMsg").textContent="Digite pelo menos dois jogadores.";return}
+ const selectedDeck=buildCategoryDeck(category);
+ if(!selectedDeck.length){$("setupMsg").textContent="A categoria selecionada está sem músicas.";return}
+ const seedPool=shuffle(selectedDeck);
+ players=names.map(name=>{
+   const seed=seedPool.pop();
+   return {name,timeline:[seed.year],seed:{...seed},points:0,bonusUsed:false,bonusGuess:null,hits:[]};
+ });
+ // Remove each player's initial reference track from the playable deck to avoid repetition.
+ const seedKeys=new Set(players.map(p=>p.seed.title+"|||"+p.seed.artist+"|||"+p.seed.year));
+ deck=shuffle(selectedDeck.filter(x=>!seedKeys.has(x.title+"|||"+x.artist+"|||"+x.year)));
+ turn=0;round=1;winner=null;
+ $("setup").classList.add("hidden");$("game").classList.remove("hidden");draw();
+};
+$("reveal").onclick=()=>{
+ if(choice===null||revealed)return;revealed=true;
+ const tl=players[turn].timeline,y=current.year;
+ const low=choice===0?-Infinity:tl[choice-1], high=choice===tl.length?Infinity:tl[choice];
+ const ok=y>=low&&y<=high,p=players[turn];
+ if(ok){tl.splice(choice,0,y);p.points++;p.hits.push({...current});}
+ let bonusOk=false;if(p.bonusGuess!==null){bonusOk=Number(p.bonusGuess)===y;if(bonusOk)p.points++;}
+ $("result").innerHTML=`<div class="resultIcon">${ok?'✓':'×'}</div><div class="${ok?'ok':'no'} resultLabel">${ok?'POSIÇÃO CERTA · +1':'QUASE!'}</div><div class="yr">${y}</div><div class="songReveal"><b>${esc(current.title)}</b><span>${esc(current.artist)}</span></div>${current.film?`<div class="filmReveal"><span>🎬 ${esc(current.film)}</span><b>${current.filmYear}</b></div>`:""}${p.bonusGuess!==null?`<div class="bonusReveal">🎯 ${bonusOk?'<b>ANO EXATO · +1 BÔNUS</b>':'Palpite: <b>'+p.bonusGuess+'</b>'}</div>`:""}<div class="resultScore">${esc(p.name)} · <b>${p.points}/10</b></div>`;
+ if(ok)playCorrect();else playWrong();
+ if(navigator.vibrate) navigator.vibrate(ok?(bonusOk?[80,50,120]:80):35);
+ $("result").classList.remove("hidden");$("reveal").classList.add("hidden");if(p.points>=10){winner=p;setTimeout(showChampion,300)}else $("next").classList.remove("hidden");
+ timeline();scores();
+};
+$("next").onclick=()=>{
+ turn=(turn+1)%players.length;if(turn===0)round++;
+ $("handoffName").textContent="Vez de "+players[turn].name;
+ $("turnModal").classList.remove("hidden");
+};
+$("handoffGo").onclick=()=>{$("turnModal").classList.add("hidden");draw()};
+$("restart").onclick=()=>{if(confirm("Reiniciar a partida?")){players=[];$("game").classList.add("hidden");$("setup").classList.remove("hidden");$("setupMsg").textContent=""}};
+spotifyBootstrap();
+</script>
+
+<div id="buildBadge" style="position:fixed;right:8px;bottom:8px;z-index:99999;padding:5px 8px;border-radius:999px;background:#101713;border:1px solid #294332;color:#75e69a;font:700 10px system-ui;opacity:.82">MOBILE • GITHUB PAGES</div>
+</body></html>
